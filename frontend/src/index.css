@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap');
+
+@layer base {
+  :root {
+    --blue-50:  #eff6ff;
+    --blue-100: #dbeafe;
+    --blue-200: #bfdbfe;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+    --blue-700: #1d4ed8;
+    --slate-50:  #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #ffffff;
+    color: var(--slate-800);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+}
+
+@layer components {
+
+  /* ── Navbar ── */
+  .navbar {
+    @apply fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md;
+    border-bottom: 1px solid var(--blue-100);
+  }
+  .nav-tab {
+    @apply relative px-4 py-2 text-sm font-medium text-slate-500 transition-colors duration-200;
+  }
+  .nav-tab:hover { color: var(--blue-600); }
+  .nav-tab.active {
+    color: var(--blue-600);
+    font-weight: 600;
+  }
+  .nav-tab.active::after {
+    content: '';
+    @apply absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply bg-white rounded-2xl p-6;
+    border: 1px solid var(--blue-100);
+    box-shadow: 0 1px 3px rgba(59,130,246,0.06), 0 4px 16px rgba(59,130,246,0.04);
+  }
+  .card-blue {
+    background: linear-gradient(135deg, var(--blue-50) 0%, #ffffff 100%);
+    border: 1px solid var(--blue-200);
+  }
+
+  /* ── KPI Cards ── */
+  .kpi-card {
+    @apply rounded-2xl p-5 relative overflow-hidden;
+    border: 1px solid var(--blue-100);
+  }
+  .kpi-card.blue   { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; }
+  .kpi-card.green  { background: linear-gradient(135deg, #059669, #047857); color: white; }
+  .kpi-card.red    { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
+  .kpi-card.sky    { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; }
+  .kpi-card.violet { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; }
+  .kpi-card.amber  { background: linear-gradient(135deg, #d97706, #b45309); color: white; }
+  .kpi-card::after {
+    content: '';
+    position: absolute; right: -16px; bottom: -16px;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family: 'Fraunces', serif;
+    @apply text-base font-semibold text-slate-700 mb-4;
+    border-left: 3px solid var(--blue-400);
+    padding-left: 10px;
+  }
+
+  /* ── Status pills ── */
+  .pill-normal {
+    @apply inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full;
+    border: 1px solid #a7f3d0;
+  }
+  .pill-defect {
+    @apply inline-block bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-0.5 rounded-full;
+    border: 1px solid #fecaca;
+  }
+
+  /* ── Upload gate ── */
+  .upload-gate {
+    @apply flex flex-col items-center justify-center py-28 gap-5;
+  }
+  .upload-gate-box {
+    @apply text-center max-w-sm;
+    background: linear-gradient(135deg, var(--blue-50), white);
+    border: 1.5px dashed var(--blue-200);
+    border-radius: 20px;
+    padding: 48px 40px;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700
+           text-white text-sm font-semibold py-3 px-6 rounded-xl transition-all duration-200;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 20px rgba(37,99,235,0.4); transform: translateY(-1px); }
+  .btn-outline {
+    @apply inline-flex items-center gap-2 bg-white hover:bg-blue-50
+           text-blue-600 text-sm font-semibold py-3 px-6 rounded-xl transition-all duration-200;
+    border: 1.5px solid var(--blue-200);
+  }
+
+  /* ── Chat bubble ── */
+  .bubble-bot  { @apply bg-slate-100 text-slate-800 rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed; }
+  .bubble-user { @apply bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed; }
+
+  /* ── Table ── */
+  .data-table th {
+    @apply px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap;
+    background: var(--blue-50);
+    border-bottom: 1px solid var(--blue-100);
+  }
+  .data-table td {
+    @apply px-4 py-3 text-sm text-slate-700 whitespace-nowrap;
+    border-bottom: 1px solid var(--slate-100);
+  }
+  .data-table tr:hover td { background: var(--blue-50); }
+}
+
+/* ── Animations ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-up  { animation: fade-up  0.5s ease forwards; }
+.animate-fade-in  { animation: fade-in  0.4s ease forwards; }
+.delay-100 { animation-delay: 0.1s; opacity: 0; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+.delay-300 { animation-delay: 0.3s; opacity: 0; }
+.delay-400 { animation-delay: 0.4s; opacity: 0; }
+
+/* Scrollbar */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 10px; }

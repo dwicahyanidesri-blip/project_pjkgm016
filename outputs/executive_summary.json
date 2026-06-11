@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-06-02T11:36:45.061977",
+  "project_id": "PJK-GM016",
+  "total_batch": 46,
+  "defect_count": 11,
+  "normal_count": 35,
+  "defect_rate_pct": 23.91,
+  "avg_yield_cb1": 100.74,
+  "avg_yield_ck1": 99.48,
+  "avg_suhu_cb1": 74.43,
+  "avg_ka_cb1": 4.976,
+  "model_metrics": {
+    "Accuracy": {
+      "Random Forest": 0.9783,
+      "Gradient Boosting": 0.9348,
+      "Isolation Forest": 0.7609,
+      "Consensus (Voting)": 0.9783
+    },
+    "Precision": {
+      "Random Forest": 1.0,
+      "Gradient Boosting": 0.7857,
+      "Isolation Forest": 0.0,
+      "Consensus (Voting)": 1.0
+    },
+    "Recall": {
+      "Random Forest": 0.9091,
+      "Gradient Boosting": 1.0,
+      "Isolation Forest": 0.0,
+      "Consensus (Voting)": 0.9091
+    },
+    "F1-Score": {
+      "Random Forest": 0.9524,
+      "Gradient Boosting": 0.88,
+      "Isolation Forest": 0.0,
+      "Consensus (Voting)": 0.9524
+    }
+  },
+  "top10_features": [
+    {
+      "feature": "model_vote_defect",
+      "importance": 0.0908
+    },
+    {
+      "feature": "cb1_waktu_lot2_ph2",
+      "importance": 0.0793
+    },
+    {
+      "feature": "cb1_waktu_lot2_ph1",
+      "importance": 0.0324
+    },
+    {
+      "feature": "cb2_bulan",
+      "importance": 0.0271
+    },
+    {
+      "feature": "cb1_jml_granul_kg",
+      "importance": 0.0253
+    },
+    {
+      "feature": "cb1_pct_yield",
+      "importance": 0.023
+    },
+    {
+      "feature": "cb2_suhu_std",
+      "importance": 0.0224
+    },
+    {
+      "feature": "cb1_outlet_lot2_ph1",
+      "importance": 0.022
+    },
+    {
+      "feature": "cb1_outlet_lot1_ph2",
+      "importance": 0.0212
+    },
+    {
+      "feature": "cb2_bulan_num",
+      "importance": 0.0185
+    }
+  ],
+  "cluster_distribution": [
+    {
+      "cluster": 0,
+      "total": 37,
+      "defect": 5,
+      "defect_rate": 13.5
+    },
+    {
+      "cluster": 1,
+      "total": 3,
+      "defect": 0,
+      "defect_rate": 0.0
+    },
+    {
+      "cluster": 2,
+      "total": 6,
+      "defect": 6,
+      "defect_rate": 100.0
+    }
+  ]
+}

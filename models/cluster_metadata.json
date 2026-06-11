@@ -1,0 +1,169 @@
+{
+  "optimal_k": 2,
+  "silhouette_score": 0.613633954007122,
+  "davies_bouldin": 1.8191601614508885,
+  "inertia": 2532.0832623308784,
+  "best_k_sil": 2,
+  "best_k_db": 2,
+  "cluster_features": [
+    "cb1_waktu_lot1_ph1",
+    "cb1_waktu_lot1_ph2",
+    "cb1_waktu_lot2_ph1",
+    "cb1_waktu_lot2_ph2",
+    "cb1_suhu_lot1_1",
+    "cb1_suhu_lot1_2",
+    "cb1_suhu_lot2_1",
+    "cb1_suhu_lot2_2",
+    "cb1_suhu_rata",
+    "cb1_suhu_std",
+    "cb1_suhu_diosna_lot1_1",
+    "cb1_suhu_diosna_lot1_2",
+    "cb1_suhu_diosna_lot2_1",
+    "cb1_suhu_diosna_lot2_2",
+    "cb2_suhu_lot1_1",
+    "cb2_suhu_lot1_2",
+    "cb2_suhu_lot2_1",
+    "cb2_suhu_lot2_2",
+    "cb2_suhu_lot3_1",
+    "cb2_suhu_lot3_2",
+    "cb2_suhu_lot4_1",
+    "cb2_suhu_lot4_2",
+    "cb2_suhu_rata",
+    "cb2_suhu_std",
+    "cb2_suhu_diosna_lot1_1",
+    "cb2_suhu_diosna_lot1_2",
+    "cb2_suhu_diosna_lot2_1",
+    "cb2_suhu_diosna_lot2_2",
+    "cb2_suhu_diosna_lot3_1",
+    "cb2_suhu_diosna_lot3_2",
+    "cb2_suhu_diosna_lot4_1",
+    "cb2_suhu_diosna_lot4_2",
+    "cb2_waktu_lot1_ph1",
+    "cb2_waktu_lot2_ph1",
+    "cb2_waktu_lot3_ph1",
+    "cb2_waktu_lot4_ph1",
+    "cb1_ka1",
+    "cb1_ka2",
+    "cb1_rata_ka",
+    "cb2_ka1",
+    "cb2_ka2",
+    "cb2_ka3",
+    "cb2_ka4",
+    "cb2_rata_ka",
+    "ck1_ka_setelah_ck",
+    "cb1_pct_yield",
+    "cb1_yield_deviate",
+    "ck1_pct_yield",
+    "ck1_yield_deviate",
+    "cb2_pct_yield",
+    "cb1_jml_granul_kg",
+    "cb2_jml_granul_kg",
+    "cb1_jml_decoct_kg",
+    "cb2_jml_decoct_kg",
+    "cb1_mixer1",
+    "cb1_mixer2",
+    "cb1_chopper1",
+    "cb1_chopper2",
+    "cb2_mixer1",
+    "cb2_mixer2",
+    "cb2_mixer3",
+    "cb2_mixer4",
+    "cb2_chopper1",
+    "cb2_chopper2",
+    "cb2_chopper3",
+    "cb2_chopper4"
+  ],
+  "pca2_var_ratio": [
+    0.1683542335283071,
+    0.1314948532210716
+  ],
+  "pca3_var_ratio": [
+    0.1683542335283071,
+    0.1314948532210716,
+    0.07378728506429422
+  ],
+  "cluster_profile": {
+    "n": {
+      "Cluster 0": 40.0,
+      "Cluster 1": 6.0
+    },
+    "Defect (%)": {
+      "Cluster 0": 12.5,
+      "Cluster 1": 100.0
+    },
+    "Suhu CB1 Rata": {
+      "Cluster 0": 73.903,
+      "Cluster 1": 77.973
+    },
+    "Suhu CB1 Std": {
+      "Cluster 0": 0.408,
+      "Cluster 1": 2.005
+    },
+    "Suhu CB2 Rata": {
+      "Cluster 0": 71.648,
+      "Cluster 1": 71.61
+    },
+    "Suhu CB2 Std": {
+      "Cluster 0": 0.303,
+      "Cluster 1": 0.064
+    },
+    "Waktu CB1 L1P1": {
+      "Cluster 0": 16.722,
+      "Cluster 1": 31.753
+    },
+    "Waktu CB1 L2P1": {
+      "Cluster 0": 16.314,
+      "Cluster 1": 0.0
+    },
+    "Waktu CB2 L1": {
+      "Cluster 0": 33.307,
+      "Cluster 1": 27.708
+    },
+    "Waktu CB2 L2": {
+      "Cluster 0": 33.469,
+      "Cluster 1": 28.035
+    },
+    "KA CB1": {
+      "Cluster 0": 4.975,
+      "Cluster 1": 8.746
+    },
+    "KA CB2": {
+      "Cluster 0": 3.493,
+      "Cluster 1": 3.367
+    },
+    "KA CK1": {
+      "Cluster 0": 4.695,
+      "Cluster 1": 4.853
+    },
+    "Yield CB1 (%)": {
+      "Cluster 0": 100.745,
+      "Cluster 1": 100.686
+    },
+    "Yield CB1 Dev": {
+      "Cluster 0": 0.075,
+      "Cluster 1": 0.667
+    },
+    "Yield CK1 (%)": {
+      "Cluster 0": 99.335,
+      "Cluster 1": 100.418
+    },
+    "Yield CB2 (%)": {
+      "Cluster 0": 101.018,
+      "Cluster 1": 84.344
+    },
+    "Granul CB1 (kg)": {
+      "Cluster 0": 301.229,
+      "Cluster 1": 301.05
+    },
+    "Granul CB2 (kg)": {
+      "Cluster 0": 536.962,
+      "Cluster 1": 538.25
+    }
+  },
+  "defect_rates": [
+    12.5,
+    100.0
+  ],
+  "max_risk_cluster": 1,
+  "min_risk_cluster": 0
+}

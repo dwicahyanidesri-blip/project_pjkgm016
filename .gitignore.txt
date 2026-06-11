@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+*.joblib
+*.pkl
+
+# Output data
+outputs/
+*.csv
+
+# Node
+node_modules/
+dist/
+build/
+.vite/
+
+# Environment
+.env
+*.env.local
