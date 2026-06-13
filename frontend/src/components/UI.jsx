@@ -1,3 +1,4 @@
+// src/components/UI.jsx
 import { Loader2, Database } from 'lucide-react'
 
 export function Spinner({ text = 'Memuat data...' }) {

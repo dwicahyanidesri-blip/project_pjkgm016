@@ -1,3 +1,4 @@
+// src/components/UploadGate.jsx
 import { Database, ArrowRight } from 'lucide-react'
 
 export default function UploadGate({ onNavigate, pageName }) {

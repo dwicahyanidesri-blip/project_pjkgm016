@@ -1,20 +1,25 @@
-import { ArrowRight, CheckCircle, BarChart2, Shield, Zap } from 'lucide-react'
+import { useEffect } from 'react'
+import { ArrowRight, CheckCircle, BarChart2, Search, FileText } from 'lucide-react'
+import Footer from '../components/Footer'
 
 const FEATURES = [
   {
-    icon: Shield,
-    title: 'Deteksi Anomali Otomatis',
-    desc:  'Sistem AI mendeteksi batch yang berpotensi cacat secara otomatis menggunakan Isolation Forest dan Random Forest, tanpa perlu pengecekan manual satu per satu.',
-  },
-  {
     icon: BarChart2,
-    title: 'Dashboard Analitik Real-Time',
-    desc:  'Semua data granulasi tersaji dalam visualisasi yang mudah dipahami — tren defect, distribusi suhu, kadar air, dan yield dalam satu layar.',
+    title: 'Monitoring',
+    desc:  'Pantau ringkasan mengenai kualitas granulasi mulai dari total batch, tingkat defect, rata-rata suhu, kadar air, dan yield, lengkap dengan tren dan distribusi status batch.',
+    image: '/images/preview-monitoring.png',
   },
   {
-    icon: Zap,
-    title: 'Pipeline AI End-to-End',
-    desc:  'Upload satu file Excel, sistem langsung memproses data, menjalankan model machine learning, dan menghasilkan laporan analisis lengkap dalam hitungan detik.',
+    icon: Search,
+    title: 'Analisis Defect',
+    desc:  'Telusuri setiap batch yang terdeteksi defect beserta parameter yang menyimpang, dilengkapi panduan istilah teknis agar mudah dipahami oleh seluruh tim Quality of Control.',
+    image: '/images/preview-defect.png',
+  },
+  {
+    icon: FileText,
+    title: 'AI Analyst',
+    desc:  'Dapatkan laporan cerdas otomatis dari AI, mulai dari kondisi produksi, penyebab kerusakan, line yang bermasalah, hingga rekomendasi prioritas perbaikan.',
+    image: '/images/preview-analyst.png',
   },
 ]
 
@@ -22,31 +27,53 @@ const HOW_TO = [
   {
     step: '01',
     title: 'Upload Data Produksi',
-    desc:  'Klik tombol "Upload Dataset" di menu sebelah kiri, lalu pilih file Excel rekap granulasi (.xlsx atau .xls) dari komputer Anda.',
+    desc:  'Klik tombol "Upload Dataset" di bagian "Lakukan Prediksi", lalu pilih file dataset rekap granulasi (.xlsx, .xls, atau csv).',
   },
   {
     step: '02',
     title: 'Tunggu Proses Analisis',
-    desc:  'Sistem akan otomatis membersihkan data, menjalankan model AI, dan mengelompokkan batch berdasarkan karakteristiknya. Proses berlangsung beberapa detik.',
+    desc:  'Sistem akan otomatis membersihkan data, menjalankan model AI, dan mengelompokkan batch berdasarkan karakteristiknya. Proses ini berlangsung beberapa detik.',
   },
   {
     step: '03',
-    title: 'Baca Hasil di Dashboard',
-    desc:  'Navigasi ke tab Overview, Monitoring, atau Analisis Defect untuk melihat hasil lengkap — mulai dari jumlah batch cacat hingga faktor penyebabnya.',
+    title: 'Lihat Hasil di Dashboard',
+    desc:  'Navigasi ke tab Monitoring, Analisis Defect, atau AI Analyst untuk melihat hasil keseluruhan secara lengkap mulai dari jumlah batch defect hingga faktor penyebabnya.',
   },
   {
     step: '04',
     title: 'Prediksi Batch Baru',
-    desc:  'Gunakan fitur Prediksi di tab Model AI untuk memasukkan parameter batch baru dan langsung mengetahui apakah batch tersebut berpotensi cacat.',
+    desc:  'Gunakan fitur "Input Parameter Manual" di bagian "Lakukan Prediksi" untuk memasukkan parameter batch baru dan langsung mengetahui apakah batch tersebut berpotensi defect.',
   },
 ]
 
-export default function Beranda({ onNavigate }) {
+export default function Beranda({ onNavigate, onViewMonitoring, onSectionChange, onNavigateSection }) {
+  useEffect(() => {
+    if (!onSectionChange) return
+    const ids = ['beranda', 'fitur', 'tutorial']
+    const sections = ids.map(id => document.getElementById(id)).filter(Boolean)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // pilih section paling atas yang sedang terlihat
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible.length > 0) {
+          onSectionChange(visible[0].target.id)
+        }
+      },
+      { rootMargin: '-100px 0px -60% 0px', threshold: 0 }
+    )
+
+    sections.forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [onSectionChange])
+
   return (
     <div className="min-h-screen bg-white">
 
-      {/* ── Hero ── */}
-      <section className="pt-28 pb-20 px-8 max-w-6xl mx-auto">
+      {/* Hero */}
+      <section id="beranda" className="pt-28 pb-20 px-8 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
           {/* Left */}
@@ -54,7 +81,7 @@ export default function Beranda({ onNavigate }) {
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 text-xs font-semibold
                             px-3 py-1.5 rounded-full mb-6 border border-blue-100">
               <span className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-              Capstone Project PJK-GM016 · Pijak x IBM SkillsBuild
+               AI-Based Pharmaceutical Data Selection and Monitoring System
             </div>
 
             <h1 className="text-5xl lg:text-6xl leading-tight text-slate-900 mb-6">
@@ -64,8 +91,8 @@ export default function Beranda({ onNavigate }) {
             </h1>
 
             <p className="text-slate-500 text-lg leading-relaxed mb-8 max-w-lg">
-              Sistem monitoring cerdas untuk proses granulasi farmasi. Deteksi batch cacat, 
-              analisis penyebab, dan pantau seluruh proses produksi secara otomatis — 
+              Sistem monitoring cerdas untuk proses granulasi farmasi. Sistem dapat mendeteksi batch yang cacat, 
+              menganalisis penyebab kerusakan, dan memantau seluruh proses produksi secara otomatis
               tanpa perlu pengecekan manual baris per baris.
             </p>
 
@@ -78,15 +105,15 @@ export default function Beranda({ onNavigate }) {
                 <ArrowRight size={16} />
               </button>
               <button
-                onClick={() => onNavigate('monitoring')}
+                onClick={onViewMonitoring}
                 className="btn-outline"
               >
-                Lihat Dashboard
+                Lihat Hasil Monitoring
               </button>
             </div>
 
             <div className="flex flex-wrap gap-5 mt-8">
-              {['Data terverifikasi', 'Model Random Forest', 'Clustering K-Means'].map(t => (
+              {['Mudah', 'Praktis', 'Efisien', 'Akurat', 'Sistematis'].map(t => (
                 <span key={t} className="flex items-center gap-1.5 text-sm text-slate-500">
                   <CheckCircle size={14} className="text-blue-400" />
                   {t}
@@ -104,7 +131,7 @@ export default function Beranda({ onNavigate }) {
               <div className="space-y-4">
                 {[
                   { label: 'Akurasi Deteksi Defect', val: 94, color: 'bg-blue-500' },
-                  { label: 'Kecepatan Analisis (per batch)', val: 100, note: '< 2 detik', color: 'bg-emerald-500' },
+                  { label: 'Kecepatan Analisis (per batch)', val: 100, note: '< 10 detik', color: 'bg-emerald-500' },
                   { label: 'Parameter yang Dianalisis', val: 80, note: '40+ parameter', color: 'bg-violet-500' },
                   { label: 'Reduksi Cek Manual', val: 90, note: '~90%', color: 'bg-sky-500' },
                 ].map(({ label, val, note, color }) => (
@@ -137,36 +164,47 @@ export default function Beranda({ onNavigate }) {
         </div>
       </section>
 
-      {/* ── Fitur ── */}
-      <section className="py-16 px-8 bg-slate-50">
+      {/* Fitur */}
+      <section id="fitur" className="py-16 px-8 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl text-slate-900 mb-3">Apa yang Bisa Dilakukan Sistem Ini?</h2>
+            <h2 className="text-3xl text-slate-900 mb-3">Fitur Utama AI Pharma</h2>
             <p className="text-slate-500 max-w-xl mx-auto">
-              Dirancang khusus untuk tim produksi farmasi yang ingin beralih dari pencatatan manual ke analisis berbasis data.
+              Dirancang khusus untuk tim Quality of Control yang ingin beralih dari pencatatan manual ke analisis berbasis data.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="card hover:shadow-md transition-shadow">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-4">
-                  <Icon size={20} className="text-blue-600" />
+            {FEATURES.map(({ icon: Icon, title, desc, image }) => (
+              <div key={title} className="card !p-0 hover:shadow-[0_0_60px_15px_rgba(59,130,246,0.35)] transition-shadow duration-300">
+                <img
+                  src={image}
+                  alt={`Preview ${title}`}
+                  className="w-full aspect-[4/3] object-cover object-top rounded-t-2xl border-b border-blue-50"
+                />
+                <div className="relative p-6 bg-white rounded-b-2xl">
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-4">
+                    <Icon size={20} className="text-blue-600" />
+                  </div>
+                  <div className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600
+                                  bg-blue-50 border border-blue-100 rounded-full px-2.5 py-1 mb-3">
+                    Fitur
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-2" style={{ fontFamily: 'Fraunces, serif' }}>
+                    {title}
+                  </h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
                 </div>
-                <h3 className="text-base font-semibold text-slate-800 mb-2" style={{ fontFamily: 'Fraunces, serif' }}>
-                  {title}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Cara Pakai ── */}
-      <section className="py-16 px-8 bg-white">
+      {/* Cara Pakai */}
+      <section id="tutorial" className="py-16 px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl text-slate-900 mb-3">Cara Menggunakan Sistem</h2>
+            <h2 className="text-3xl text-slate-900 mb-3">Tutorial Menggunakan AI Pharma</h2>
             <p className="text-slate-500 max-w-xl mx-auto">
               Empat langkah sederhana untuk mulai memantau kualitas granulasi produksi Anda.
             </p>
@@ -183,7 +221,10 @@ export default function Beranda({ onNavigate }) {
             ))}
           </div>
           <div className="mt-10 text-center">
-            <button onClick={() => onNavigate('prediksi')} className="btn-primary">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="btn-primary"
+            >
               Mulai Sekarang
               <ArrowRight size={16} />
             </button>
@@ -191,13 +232,7 @@ export default function Beranda({ onNavigate }) {
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="py-8 px-8 border-t border-blue-50 text-center">
-        <p className="text-xs text-slate-400">
-          AI-Based Pharmaceutical Data Selection and Monitoring System · PJK-GM016
-          <br />Pijak in collaboration with IBM SkillsBuild
-        </p>
-      </footer>
+      <Footer onNavigateSection={onNavigateSection} />
     </div>
   )
 }

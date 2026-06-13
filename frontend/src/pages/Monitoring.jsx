@@ -11,6 +11,7 @@ import {
 
 const PIE_COLORS = ['#10b981', '#ef4444']
 
+
 const TABLE_COLS_SHOW = [
   'material_desc',
   'cb1_bulan',
@@ -37,6 +38,7 @@ const COL_LABEL = {
   label_display:  'Status',
 }
 
+
 const THRESHOLDS = {
   'Suhu CB1 (°C)':      { max: 75 },
   'Suhu CB2 (°C)':      { max: 75 },
@@ -46,6 +48,7 @@ const THRESHOLDS = {
   'Yield CB2 (%)':      { min: 99, max: 103.1 },
   'Yield CK1 (%)':      { min: 99, max: 103.1 },
 }
+
 
 function CompareTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
@@ -116,7 +119,7 @@ export default function Monitoring({ hasData }) {
   const opts = table?.filters ?? {}
   const setFilter = (key, val) => { setFilters(f => ({ ...f, [key]: val })); setPage(1) }
 
-  // Kolom tabel: hanya tampilkan yang tersedia di data
+  // Kolom tabel
   const tableCols = table?.data?.length
     ? TABLE_COLS_SHOW.filter(c => c in table.data[0])
     : []
@@ -187,7 +190,7 @@ export default function Monitoring({ hasData }) {
         </div>
       )}
 
-      {/* ── Charts row 3 — Perbandingan Normal vs Defect ── */}
+      {/* Charts row 3 — Perbandingan Normal vs Defect */}
       {compare_metrics?.length > 0 && (
         <div>
           <h2 className="text-xl text-slate-800 mb-1" style={{ fontFamily: 'Fraunces, serif' }}>
@@ -224,7 +227,7 @@ export default function Monitoring({ hasData }) {
             {kaData.length > 0 && (
               <div className="card">
                 <div className="section-title mb-1">Kadar Air</div>
-                <p className="text-xs text-slate-400 mb-3">Range normal 3.0–5.5%. Di luar range → risiko defect naik.</p>
+                <p className="text-xs text-slate-400 mb-3">Range normal 3.0–5.5%. Jika di luar range maka akan berisiko defect.</p>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={kaData} layout="vertical" margin={{ left: 10, right: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
@@ -266,7 +269,7 @@ export default function Monitoring({ hasData }) {
         </div>
       )}
 
-      {/* ── Tabel Batch ── */}
+      {/* Tabel Batch */}
       <div>
         <h2 className="text-xl text-slate-800 mb-1" style={{ fontFamily: 'Fraunces, serif' }}>Data Batch Selengkapnya</h2>
         <p className="text-sm text-slate-500 mb-4">Tabel seluruh data batch granulasi yang telah dianalisis</p>
@@ -275,7 +278,6 @@ export default function Monitoring({ hasData }) {
         <div className="card flex flex-wrap gap-4 mb-4">
           {[
             { key: 'bulan',  label: 'Bulan',  options: opts.bulan_options  ?? [] },
-            { key: 'line',   label: 'Line',   options: opts.line_options   ?? [] },
             { key: 'status', label: 'Status', options: opts.status_options ?? [] },
           ].map(({ key, label, options }) => (
             <div key={key} className="flex flex-col gap-1">

@@ -9,8 +9,9 @@ import axios from 'axios'
 
 const api = axios.create({ baseURL: '/api' })
 
-
+// ─────────────────────────────────────────────────────────────
 // KARTU ANALISIS — 6 jenis laporan yang bisa di-generate
+// ─────────────────────────────────────────────────────────────
 const ANALYSIS_CARDS = [
   {
     id:    'summary',
@@ -65,13 +66,14 @@ const COLOR = {
   green:  { bg: 'bg-green-50',  icon: 'bg-green-100 text-green-600', ring: 'ring-green-300',   badge: 'bg-green-100 text-green-700' },
 }
 
-
+// ─────────────────────────────────────────────────────────────
 // KOMPONEN: Kartu hasil laporan
+// ─────────────────────────────────────────────────────────────
 function ResultPanel({ result, card, onClose, onRegenerate, loading }) {
   const c = COLOR[card.color]
   const Icon = card.icon
 
-  // Format teks — buat baris yang diawali angka atau "-" jadi lebih terstruktur
+  // Format teks
   const paragraphs = result.split('\n').filter(l => l.trim())
 
   return (
@@ -131,17 +133,13 @@ function ResultPanel({ result, card, onClose, onRegenerate, loading }) {
           )
         })}
       </div>
-
-      <div className="px-5 pb-4 flex items-center gap-1.5">
-        <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-        <span className="text-xs text-slate-400">Dibuat dari data yang kamu upload — bukan data dari internet</span>
-      </div>
     </div>
   )
 }
 
-
+// ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────
 export default function AIAnalyst({ hasData }) {
   const [kpi,       setKpi]       = useState(null)
   const [results,   setResults]   = useState({})   // { analysis_type: string }
@@ -182,38 +180,37 @@ export default function AIAnalyst({ hasData }) {
   return (
     <div className="space-y-8">
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <FileText size={20} className="text-slate-400" />
           <h1 className="text-3xl text-slate-900">Laporan Cerdas</h1>
         </div>
         <p className="text-slate-500 text-sm">
-          Pilih topik laporan di bawah — sistem akan langsung menganalisis data produksi kamu
-          dan menghasilkan penjelasan beserta rekomendasi.
+          Pilih topik laporan di bawah dan sistem akan langsung menganalisis data produksi yang diupload
+          lalu memberikan penjelasan beserta rekomendasi mengenai dataset granulasi tersebut.
         </p>
       </div>
 
-      {/* ── KPI ringkas ── */}
+      {/* KPI ringkas */}
       {kpi && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Total Batch',   val: kpi.total_batch,         unit: 'batch' },
-            { label: 'Batch Gagal',   val: kpi.defect,              unit: 'batch', warn: kpi.defect > 0 },
-            { label: 'Tingkat Gagal', val: `${kpi.defect_rate}%`,   unit: '',      warn: kpi.defect_rate > 15 },
-            { label: 'Batch Normal',  val: kpi.normal,              unit: 'batch' },
-          ].map(({ label, val, unit, warn }) => (
-            <div key={label} className={`rounded-2xl px-4 py-3 border ${warn ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
-              <div className="text-xs text-slate-400 mb-1">{label}</div>
-              <div className={`text-xl font-bold ${warn ? 'text-red-600' : 'text-slate-800'}`}>
-                {val} <span className="text-xs font-normal text-slate-400">{unit}</span>
+            { label: 'Total Batch',   val: kpi.total_batch,         unit: 'batch', grad: 'from-blue-500 to-blue-700' },
+            { label: 'Batch Gagal',   val: kpi.defect,              unit: 'batch', grad: 'from-red-500 to-red-700' },
+            { label: 'Tingkat Gagal', val: `${kpi.defect_rate}%`,   unit: '',      grad: 'from-amber-500 to-orange-600' },
+            { label: 'Batch Normal',  val: kpi.normal,              unit: 'batch', grad: 'from-emerald-500 to-emerald-700' },
+          ].map(({ label, val, unit, grad }) => (
+            <div key={label} className={`rounded-2xl px-4 py-3 text-white bg-gradient-to-br ${grad}`}>
+              <div className="text-xs uppercase tracking-widest opacity-80 font-semibold mb-1">{label}</div>
+              <div className="text-xl font-bold">
+                {val} <span className="text-xs font-normal opacity-75">{unit}</span>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── Kartu analisis ── */}
+      {/* Kartu analisis */}
       <div>
         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
           Buat laporan untuk
@@ -295,11 +292,6 @@ export default function AIAnalyst({ hasData }) {
           })}
         </div>
       </div>
-
-      {/* Catatan kecil di bawah */}
-      <p className="text-xs text-slate-300 text-center pb-2">
-        Laporan dibuat dari data yang kamu upload. Tidak ada data yang dikirim ke internet selain ke server analisis internal.
-      </p>
     </div>
   )
 }

@@ -1,3 +1,29 @@
+"""
+pipeline/preprocessing.py
+==========================
+Refactored dari 01_preprocessing.ipynb — logika IDENTIK, tidak ada perubahan algoritma.
+
+Alur:
+  1. Deteksi baris kuning (defect) via openpyxl fmt workbook
+  2. Load nilai via data_only=True workbook
+  3. Baca header baris ke-3, rename duplikat
+  4. Baca semua baris data (ab baris 4), skip baris kosong total
+  5. Seleksi kolom fitur (FEATURE_COLS mapping)
+  6. Drop baris tanpa material_desc & duplikat
+  7. Handle outlier KA: buat flag sebelum normalisasi
+  8. Set outlier Suhu ke NaN (jaga sinyal KA)
+  9. Hapus kolom all-null
+ 10. Imputasi numerik: median per material → median global
+ 11. Imputasi kategorik: forward fill + 'TIDAK DIKETAHUI'
+ 12. Feature engineering (suhu rata, std, yield deviate, KA outlier flag, suhu tinggi, no_batch_num)
+ 13. Encode kategorik (lapis, bulan, line, shift, keterangan)
+ 14. Cek final missing → isi median/UNKNOWN
+ 15. Return DataFrame bersih
+
+Input  : file-like object (.xlsx / .xls / .csv) atau path string
+Output : pd.DataFrame  (=== dataset_clean.csv)
+"""
+
 import io
 import warnings
 import numpy as np
@@ -6,8 +32,10 @@ from openpyxl import load_workbook
 
 warnings.filterwarnings("ignore")
 
+# ══════════════════════════════════════════════════════
+# KONSTANTA — diambil persis dari notebook
+# ══════════════════════════════════════════════════════
 
-# KONSTANTA
 SHEET_NAME = "BFTP"
 
 FEATURE_COLS = {
@@ -178,7 +206,10 @@ BULAN_MAP = {
 }
 
 
+# ══════════════════════════════════════════════════════
 # HELPER INTERNAL
+# ══════════════════════════════════════════════════════
+
 def _to_bytes(uploaded_file):
     """Konversi uploaded_file (Streamlit UploadedFile atau path) ke bytes."""
     if isinstance(uploaded_file, (str, bytes)):
@@ -476,7 +507,10 @@ def _final_missing_cleanup(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+# ══════════════════════════════════════════════════════
 # PUBLIC API
+# ══════════════════════════════════════════════════════
+
 def run_preprocessing(uploaded_file, save_path: str = None) -> pd.DataFrame:
     """
     Jalankan seluruh pipeline preprocessing dari 01_preprocessing.ipynb.
@@ -562,7 +596,9 @@ def run_preprocessing(uploaded_file, save_path: str = None) -> pd.DataFrame:
     return df_output
 
 
+# ══════════════════════════════════════════════════════
 # QUICK TEST (jalankan langsung: python preprocessing.py)
+# ══════════════════════════════════════════════════════
 if __name__ == "__main__":
     import sys, os
 

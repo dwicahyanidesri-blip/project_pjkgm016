@@ -1,47 +1,45 @@
-import { useState, useRef } from 'react'
-import { Upload, Loader2, CheckCircle, Menu, X } from 'lucide-react'
-import { uploadDataset } from '../hooks/useApi'
+// src/components/Navbar.jsx
+import { useState } from 'react'
+import { Menu, X } from 'lucide-react'
 import clsx from 'clsx'
 
-const NAV_ITEMS = [
-  { id: 'beranda',         label: 'Beranda' },
+const NAV_ITEMS_LANDING = [
+  { id: 'beranda',  label: 'Beranda' },
+  { id: 'fitur',    label: 'Fitur' },
+  { id: 'tutorial', label: 'Tutorial' },
+]
+
+const NAV_ITEMS_APP = [
   { id: 'monitoring',      label: 'Monitoring' },
   { id: 'defect-analysis', label: 'Analisis Defect' },
   { id: 'ai-analyst',      label: 'AI Analyst' },
 ]
 
-export default function Navbar({ activePage, onNavigate, onDataLoaded, hasData }) {
-  const fileRef    = useRef(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploaded,  setUploaded]  = useState(null)
-  const [menuOpen,  setMenuOpen]  = useState(false)
+export default function Navbar({ activePage, activeSection, onNavigate, onNavigateSection, appMode, onBackToHome }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const isApp = appMode === 'app'
+  const navItems = isApp ? NAV_ITEMS_APP : NAV_ITEMS_LANDING
+  const activeId = (!isApp && activePage === 'beranda') ? activeSection : activePage
 
-  const handleFile = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploading(true)
-    try {
-      const res = await uploadDataset(file)
-      setUploaded({ rows: res.data.rows })
-      onDataLoaded(res.data)
-    } catch {
-      // error handled in Prediksi page
-    } finally {
-      setUploading(false)
+  const handleNavClick = (id) => {
+    if (!isApp && (id === 'fitur' || id === 'tutorial' || id === 'beranda')) {
+      onNavigateSection(id)
+    } else {
+      onNavigate(id)
     }
   }
 
   return (
     <nav className="navbar">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-16 items-center grid grid-cols-1 lg:grid-cols-3">
 
         {/* Logo */}
         <button
-          onClick={() => onNavigate('beranda')}
-          className="flex items-center gap-2.5 shrink-0"
+          onClick={() => onNavigate(isApp ? 'monitoring' : 'beranda')}
+          className="flex items-center gap-2.5 shrink-0 justify-self-start"
         >
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xs font-bold">AI</span>
+          <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+            <img src="/images/logo.png" alt="AI Pharma" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="text-sm font-bold text-slate-900 leading-none">AI Pharma</div>
@@ -50,12 +48,12 @@ export default function Navbar({ activePage, onNavigate, onDataLoaded, hasData }
         </button>
 
         {/* Nav tabs — desktop */}
-        <div className="hidden lg:flex items-center gap-1">
-          {NAV_ITEMS.map(({ id, label }) => (
+        <div className="hidden lg:flex items-center gap-1 justify-self-center">
+          {navItems.map(({ id, label }) => (
             <button
               key={id}
-              onClick={() => onNavigate(id)}
-              className={clsx('nav-tab', activePage === id && 'active')}
+              onClick={() => handleNavClick(id)}
+              className={clsx('nav-tab', activeId === id && 'active')}
             >
               {label}
             </button>
@@ -63,31 +61,17 @@ export default function Navbar({ activePage, onNavigate, onDataLoaded, hasData }
         </div>
 
         {/* Right actions */}
-        <div className="flex items-center gap-3">
-          {/* Upload quick button */}
-          {uploaded && !uploading
-            ? (
-              <div className="hidden lg:flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50
-                              border border-emerald-100 rounded-full px-3 py-1.5">
-                <CheckCircle size={12} />
-                {uploaded.rows} batch dimuat
-              </div>
-            )
-            : (
-              <button
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
-                className="hidden lg:flex items-center gap-1.5 text-xs font-semibold text-blue-600
-                           bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-full
-                           px-3 py-1.5 transition-colors"
-              >
-                {uploading
-                  ? <><Loader2 size={12} className="animate-spin" /> Memproses...</>
-                  : <><Upload size={12} /> Upload Dataset</>}
-              </button>
-            )
-          }
-          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFile} />
+        <div className="flex items-center gap-3 justify-self-end">
+          {isApp && (
+            <button
+              onClick={onBackToHome}
+              className="hidden lg:flex items-center gap-1.5 text-xs font-semibold text-blue-600
+                         bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-full
+                         px-4 py-1.5 transition-colors"
+            >
+              Kembali ke Beranda
+            </button>
+          )}
 
           {/* Prediksi CTA */}
           <button
@@ -111,13 +95,13 @@ export default function Navbar({ activePage, onNavigate, onDataLoaded, hasData }
       {/* Mobile menu */}
       {menuOpen && (
         <div className="lg:hidden px-4 pb-4 border-t border-blue-50 bg-white">
-          {NAV_ITEMS.map(({ id, label }) => (
+          {navItems.map(({ id, label }) => (
             <button
               key={id}
-              onClick={() => { onNavigate(id); setMenuOpen(false) }}
+              onClick={() => { handleNavClick(id); setMenuOpen(false) }}
               className={clsx(
                 'block w-full text-left px-3 py-2.5 text-sm rounded-lg mt-1',
-                activePage === id
+                activeId === id
                   ? 'bg-blue-50 text-blue-600 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50'
               )}
@@ -125,6 +109,15 @@ export default function Navbar({ activePage, onNavigate, onDataLoaded, hasData }
               {label}
             </button>
           ))}
+          {isApp && (
+            <button
+              onClick={() => { onBackToHome(); setMenuOpen(false) }}
+              className="block w-full text-left px-3 py-2.5 text-sm rounded-lg mt-1 text-blue-600
+                         bg-blue-50 font-semibold"
+            >
+              Kembali ke Beranda
+            </button>
+          )}
           <button
             onClick={() => { onNavigate('prediksi'); setMenuOpen(false) }}
             className="btn-primary w-full justify-center mt-3 text-xs"

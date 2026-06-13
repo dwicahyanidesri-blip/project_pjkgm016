@@ -4,7 +4,9 @@ import { Spinner, EmptyState, ErrorBox } from '../components/UI'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts'
 import { AlertTriangle, ChevronDown, ChevronUp, RefreshCw, BookOpen } from 'lucide-react'
 
+// ─────────────────────────────────────────────
 // DATA GLOSSARY — istilah teknis granulasi
+// ─────────────────────────────────────────────
 const GLOSSARY_SECTIONS = [
   {
     title: 'Tahapan Proses (CB1, CK1, CB2, CK2)',
@@ -12,7 +14,7 @@ const GLOSSARY_SECTIONS = [
     items: [
       {
         term: 'CB1 (Campur Basah 1)',
-        desc: 'Tahap pertama granulasi basah. Bahan baku serbuk dicampur dengan cairan pengikat (decoct) di dalam mesin DIOSNA hingga membentuk granul basah. Ini adalah langkah awal pembentukan granul.',
+        desc: 'Tahap pertama granulasi basah. Bahan baku serbuk dicampur dengan cairan pengikat (decoct) di dalam mesin diosna sehingga membentuk granul basah. Ini adalah langkah awal pembentukan granul.',
       },
       {
         term: 'CK1 (Campur Kering 1)',
@@ -20,7 +22,7 @@ const GLOSSARY_SECTIONS = [
       },
       {
         term: 'CB2 (Campur Basah 2)',
-        desc: 'Tahap kedua granulasi basah, dilakukan setelah CK1. Proses serupa dengan CB1 namun bisa menggunakan bahan atau lot yang berbeda. Tidak semua produk memiliki tahap CB2.',
+        desc: 'Tahap kedua granulasi basah, dilakukan setelah CK1. Proses serupa dengan CB1 namun dapat menggunakan bahan atau lot yang berbeda. Tidak semua produk memiliki tahap CB2.',
       },
       {
         term: 'CK2 (Campur Kering 2)',
@@ -34,37 +36,37 @@ const GLOSSARY_SECTIONS = [
     items: [
       {
         term: 'Suhu Decoct (suhu_lot_X)',
-        desc: 'Suhu cairan decoct (ekstrak tanaman yang sudah dimasak) saat dituang ke dalam mesin DIOSNA. Diukur per lot (porsi). Suhu yang terlalu tinggi bisa merusak zat aktif, sedangkan suhu terlalu rendah menyebabkan granul tidak mengikat dengan baik. Batas normal: ≤ 75°C.',
+        desc: 'Suhu cairan decoct (ekstrak tanaman yang sudah dimasak) saat dituang ke dalam mesin diosna dan diukur per lot (porsi). Suhu yang terlalu tinggi dapat merusak zat aktif, sedangkan suhu terlalu rendah dapat menyebabkan granul tidak mengikat dengan baik. Batas normal: ≤ 75°C.',
       },
       {
-        term: 'Suhu DIOSNA (suhu_diosna_lot_X)',
-        desc: 'Suhu cairan decoct sesaat sebelum masuk ke dalam bowl mesin DIOSNA (mesin pengaduk granulasi). Berbeda dengan suhu decoct awal karena bisa turun selama proses pengangkutan. Dipantau per lot untuk memastikan konsistensi proses.',
+        term: 'Suhu Diosna (suhu_diosna_lot_X)',
+        desc: 'Suhu cairan decoct sesaat sebelum masuk ke dalam bowl mesin diosna (mesin pengaduk granulasi). Berbeda dengan suhu decoct awal karena dapat turun selama proses pengangkutan. Suhu diosna dipantau per lot untuk memastikan konsistensi proses.',
       },
       {
         term: 'Suhu Rata-rata (suhu_rata)',
-        desc: 'Rata-rata dari semua pengukuran suhu dalam satu batch (mencakup semua lot). Nilai inilah yang dipakai model AI untuk menilai apakah suhu proses secara keseluruhan dalam batas normal.',
+        desc: 'Rata-rata dari semua pengukuran suhu dalam satu batch (mencakup semua lot).',
       },
     ],
   },
   {
     title: 'Kadar Air (KA)',
-    color: 'teal',
+    color: 'red',
     items: [
       {
         term: 'KA (Kadar Air)',
-        desc: 'Persentase kandungan air dalam granul kering. Kadar air yang ideal biasanya 4–6.5%. Terlalu tinggi (>6.5%) membuat granul lengket dan mudah berjamur; terlalu rendah (<3%) membuat granul rapuh dan sulit dikempa menjadi tablet.',
+        desc: 'Persentase kandungan air dalam granul kering. Kadar air yang ideal biasanya 4–6.5%. Jika terlalu tinggi (>6.5%) akan membuat granul lengket dan mudah berjamur, jika terlalu rendah (<3%) akan membuat granul rapuh dan sulit dikempa menjadi tablet.',
       },
       {
-        term: 'KA 1, KA 2, KA 3, KA 4',
-        desc: 'Pengukuran kadar air dilakukan beberapa kali (biasanya 3–4 kali) pada titik pengambilan sampel yang berbeda dalam satu batch, untuk memastikan hasil pengukuran konsisten dan granul sudah kering merata. Semakin banyak titik ukur, semakin akurat penilaian keseragaman pengeringan.',
+        term: 'KA 1, KA 2, KA 3, dan KA 4',
+        desc: 'Pengukuran kadar air dilakukan beberapa kali (biasanya 2–4 kali) pada titik pengambilan sampel yang berbeda dalam satu batch, untuk memastikan hasil pengukuran konsisten dan granul sudah kering merata. Semakin banyak titik ukur, semakin akurat penilaian keseragaman pengeringan.',
       },
       {
         term: 'Rata-rata KA (rata_ka)',
-        desc: 'Rata-rata dari semua pengukuran KA dalam satu batch. Ini adalah nilai resmi yang dicatat dan digunakan sebagai dasar keputusan apakah granul lolos ke tahap berikutnya.',
+        desc: 'Rata-rata dari semua pengukuran KA dalam satu batch.',
       },
       {
         term: 'KA Setelah CK1 (ka_setelah_ck)',
-        desc: 'Kadar air granul yang diukur setelah tahap pengeringan CK1 selesai. Merupakan titik kontrol kritis — jika kadar air belum mencapai target, proses pengeringan perlu dilanjutkan.',
+        desc: 'Kadar air granul yang diukur setelah tahap pengeringan CK1 selesai dan merupakan titik kontrol kritis, jika kadar air belum mencapai target, proses pengeringan perlu dilanjutkan.',
       },
     ],
   },
@@ -74,29 +76,29 @@ const GLOSSARY_SECTIONS = [
     items: [
       {
         term: 'Yield / % Yield (pct_yield)',
-        desc: 'Persentase hasil granul yang berhasil diproduksi dibandingkan dengan jumlah bahan baku yang dimasukkan. Rumus sederhana: (berat granul jadi ÷ berat bahan baku) × 100%. Yield 100% berarti tidak ada bahan yang terbuang. Yield di bawah normal menandakan banyak bahan hilang selama proses (menempel di mesin, terbuang saat pengayakan, dsb).',
+        desc: 'Persentase hasil granul yang berhasil diproduksi dibandingkan dengan jumlah bahan baku yang dimasukkan. Rumus sederhana: (berat granul jadi ÷ berat bahan baku) × 100%. Yield 100% berarti tidak ada bahan yang terbuang. Yield di bawah normal menandakan banyak bahan hilang selama proses, seperti ada bahan yang menempel di mesin, terbuang saat pengayakan, dsb).',
       },
       {
         term: 'Teoritis Granul',
         desc: 'Berat granul yang seharusnya dihasilkan berdasarkan perhitungan formula (berat bahan baku × faktor koreksi). Nilai ini menjadi pembanding untuk menghitung % yield. Bila yield jauh di bawah teoritis, perlu investigasi kehilangan bahan.',
       },
       {
-        term: 'Yield CB1, Yield CK1, Yield CB2',
-        desc: 'Yield dihitung di setiap tahap proses secara terpisah. Yield CB1 mengukur kehilangan saat proses campur basah; yield CK1 mengukur kehilangan saat pengeringan dan pengayakan; yield CB2 untuk tahap campur basah kedua. Rentang normal: CB1 = 99.0–103.1%, CK1 = 99.1–102.9%, CB2 = 99.1–102.3%.',
+        term: 'Yield CB1, Yield CK1, dan Yield CB2',
+        desc: 'Yield dihitung di setiap tahap proses secara terpisah. Yield CB1 mengukur kehilangan saat proses campur basah, yield CK1 mengukur kehilangan saat pengeringan dan pengayakan, yield CB2 untuk tahap campur basah kedua. Rentang normal: CB1 = 99.0–103.1%, CK1 = 99.1–102.9%, CB2 = 99.1–102.3%.',
       },
     ],
   },
   {
-    title: 'Istilah Mesin & Proses Lainnya',
-    color: 'purple',
+    title: 'Istilah Mesin dan Proses Lainnya',
+    color: 'violet',
     items: [
       {
         term: 'Lot',
-        desc: 'Satu porsi atau satu siklus proses dalam satu batch. Karena kapasitas mesin terbatas, satu batch bisa dibagi menjadi beberapa lot (lot 1, lot 2, dst.) yang diproses secara bergantian lalu digabung.',
+        desc: 'Satu porsi atau satu siklus proses dalam satu batch, dikarenakan kapasitas mesin terbatas maka satu batch dapat dibagi menjadi beberapa lot (lot 1, lot 2, dst.) yang diproses secara bergantian lalu digabung.',
       },
       {
-        term: 'Mixer & Chopper',
-        desc: 'Kecepatan putar komponen mesin DIOSNA. Mixer adalah pengaduk utama yang mencampur serbuk dengan cairan; chopper adalah pisau kecil yang memecah gumpalan granul agar ukurannya lebih seragam. Kecepatannya diatur dalam RPM.',
+        term: 'Mixer dan Chopper',
+        desc: 'Kecepatan putar komponen mesin diosna. Mixer adalah pengaduk utama yang mencampur serbuk dengan cairan dan chopper adalah pisau kecil yang memecah gumpalan granul agar ukurannya lebih seragam. Kecepatannya diatur dalam RPM.',
       },
       {
         term: 'No. Ayakan (ALEX & Frewitt)',
@@ -107,10 +109,6 @@ const GLOSSARY_SECTIONS = [
         desc: 'Cairan ekstrak tanaman yang diperoleh dengan cara merebus simplisia (bahan tanaman) dalam air. Decoct berfungsi sebagai cairan pengikat dalam proses granulasi basah untuk menyatukan partikel serbuk menjadi granul.',
       },
       {
-        term: 'Line (cb1_line)',
-        desc: 'Nomor atau kode jalur produksi (production line) tempat batch tersebut dibuat. Satu fasilitas produksi biasanya memiliki beberapa line yang beroperasi paralel. Analisis defect per line membantu mengidentifikasi apakah ada mesin atau operator tertentu yang bermasalah.',
-      },
-      {
         term: 'Shift',
         desc: 'Jadwal kerja produksi (misalnya shift pagi, siang, atau malam). Pola defect per shift membantu mendeteksi apakah waktu kerja atau pergantian operator berpengaruh terhadap kualitas produksi.',
       },
@@ -119,11 +117,11 @@ const GLOSSARY_SECTIONS = [
 ]
 
 const COLOR_MAP = {
-  blue:   { bg: 'bg-blue-50',   border: 'border-blue-100',  badge: 'bg-blue-100 text-blue-800',   dot: 'bg-blue-400'   },
-  amber:  { bg: 'bg-amber-50',  border: 'border-amber-100', badge: 'bg-amber-100 text-amber-800', dot: 'bg-amber-400'  },
-  teal:   { bg: 'bg-teal-50',   border: 'border-teal-100',  badge: 'bg-teal-100 text-teal-800',   dot: 'bg-teal-500'   },
-  green:  { bg: 'bg-green-50',  border: 'border-green-100', badge: 'bg-green-100 text-green-800', dot: 'bg-green-500'  },
-  purple: { bg: 'bg-purple-50', border: 'border-purple-100',badge: 'bg-purple-100 text-purple-800',dot: 'bg-purple-400'},
+  blue:   { bg: 'bg-blue-50',   border: 'border-blue-100',   badge: 'bg-blue-100 text-blue-800',     dot: 'bg-blue-400'   },
+  amber:  { bg: 'bg-amber-50',  border: 'border-amber-100',  badge: 'bg-amber-100 text-amber-800',   dot: 'bg-amber-400'  },
+  red:    { bg: 'bg-red-50',    border: 'border-red-100',    badge: 'bg-red-100 text-red-800',       dot: 'bg-red-400'    },
+  green:  { bg: 'bg-green-50',  border: 'border-green-100',  badge: 'bg-green-100 text-green-800',   dot: 'bg-green-500'  },
+  violet: { bg: 'bg-violet-50', border: 'border-violet-100', badge: 'bg-violet-100 text-violet-800', dot: 'bg-violet-400' },
 }
 
 function GlossarySection({ section }) {
@@ -198,8 +196,9 @@ function GlossaryPanel() {
   )
 }
 
-
-// Komponen BatchDefectCard
+// ─────────────────────────────────────────────
+// Komponen BatchDefectCard (tidak berubah)
+// ─────────────────────────────────────────────
 function BatchDefectCard({ batch }) {
   const [open, setOpen] = useState(false)
 
@@ -271,8 +270,9 @@ function BatchDefectCard({ batch }) {
   )
 }
 
-
+// ─────────────────────────────────────────────
 // Main export
+// ─────────────────────────────────────────────
 export default function AnalisisDefect({ hasData }) {
   const [analysis,      setAnalysis]      = useState(null)
   const [batches,       setBatches]       = useState([])

@@ -1,3 +1,4 @@
+// src/components/KPICard.jsx
 export default function KPICard({ label, value, sub, color = 'blue' }) {
   const gradients = {
     blue:   'from-blue-500 to-blue-700',
@@ -12,7 +13,7 @@ export default function KPICard({ label, value, sub, color = 'blue' }) {
     lime:   'from-lime-500 to-green-600',
   }
   return (
-    <div className={`kpi-card bg-gradient-to-br ${gradients[color] ?? gradients.blue}`}>
+    <div className={`kpi-card bg-gradient-to-br ${gradients[color] ?? gradients.blue} text-white`}>
       <div className="text-xs uppercase tracking-widest opacity-80 font-semibold">{label}</div>
       <div className="text-3xl font-extrabold mt-1 mb-0.5 tracking-tight">{value ?? '—'}</div>
       <div className="text-xs opacity-75">{sub}</div>

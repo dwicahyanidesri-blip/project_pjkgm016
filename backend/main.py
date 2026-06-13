@@ -12,8 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses  import JSONResponse
 from pydantic           import BaseModel
 
-
-# Path pipeline
+# ── Path pipeline ────────────────────────────────────────────────────
 _BACKEND_DIR = Path(__file__).parent
 _ROOT_DIR    = _BACKEND_DIR.parent
 for _d in [str(_BACKEND_DIR), str(_ROOT_DIR / "pipeline"), str(_ROOT_DIR)]:
@@ -22,7 +21,7 @@ for _d in [str(_BACKEND_DIR), str(_ROOT_DIR / "pipeline"), str(_ROOT_DIR)]:
 
 from pipeline_runner import run_pipeline, get_pipeline_summary   # noqa: E402
 
-
+# ════════════════════════════════════════════════════════════════════
 app = FastAPI(title="AI Pharma API — PJK-GM016", version="1.0.0")
 
 app.add_middleware(
@@ -37,8 +36,7 @@ MODELS_DIR = str(_ROOT_DIR / "models")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-
-# In-memory cache
+# ── In-memory cache ──────────────────────────────────────────────────
 _cache: dict = {
     "df":              None,
     "model_results":   None,
@@ -70,8 +68,10 @@ def _auto_load_from_csv():
 # Auto-load data saat backend start — tidak perlu upload ulang setiap restart
 _auto_load_from_csv()
 
-
+# ════════════════════════════════════════════════════════════════════
 # HELPERS
+# ════════════════════════════════════════════════════════════════════
+
 def _df_to_records(df: pd.DataFrame) -> list:
     """Konversi DataFrame ke list of dict, handle NaN/Inf."""
     return json.loads(
@@ -90,7 +90,10 @@ def _safe_float(val):
         return None
 
 
+# ════════════════════════════════════════════════════════════════════
 # ENDPOINTS
+# ════════════════════════════════════════════════════════════════════
+
 @app.get("/")
 def root():
     return {"status": "ok", "message": "AI Pharma API running"}
@@ -102,7 +105,7 @@ def health():
             "rows": len(_cache["df"]) if _cache["df"] is not None else 0}
 
 
-# 1. Upload & Run Pipeline
+# ── 1. Upload & Run Pipeline ─────────────────────────────────────────
 @app.post("/upload")
 async def upload_dataset(file: UploadFile = File(...)):
     """
@@ -156,7 +159,7 @@ async def upload_dataset(file: UploadFile = File(...)):
     }
 
 
-# 2. Monitoring
+# ── 2. Monitoring ──────────────────────────────────────────────────────
 @app.get("/overview")
 def get_overview():
     df = _cache["df"]
@@ -276,7 +279,7 @@ def get_monitoring(
     }
 
 
-# 3. Analisis Defect
+# ── 3. Analisis Defect ───────────────────────────────────────────────
 @app.get("/defect-analysis")
 def get_defect_analysis():
     df = _cache["df"]
@@ -352,7 +355,7 @@ def get_model_results():
     }
 
 
-# 4. Prediksi Manual
+# ── 4. Prediksi Manual ───────────────────────────────────────────────
 class PredictRequest(BaseModel):
     features: dict   # {"cb1_suhu_rata": 74.5, "cb2_suhu_rata": 73.2, ...}
 
@@ -378,7 +381,7 @@ def predict_single(req: PredictRequest):
     pred  = int(rf.predict(Xs)[0])
     proba = float(rf.predict_proba(Xs)[0][1])
 
-    # Rule-based reasoning dari input manual
+    # ── Rule-based reasoning dari input manual ──
     features = req.features
     reasons  = []
 
@@ -435,7 +438,7 @@ def predict_single(req: PredictRequest):
     }
 
 
-# 5. Clustering
+# ── 5. Clustering ────────────────────────────────────────────────────
 @app.get("/clustering")
 def get_clustering():
     cr = _cache.get("cluster_results")
@@ -477,7 +480,7 @@ def get_clustering():
     }
 
 
-# 6. Defect Batches Detail
+# ── 6. Defect Batches Detail ─────────────────────────────────────────
 @app.get("/defect-batches")
 def get_defect_batches():
     """Kembalikan semua batch defect beserta kolom defect_reasons dan info batch."""
@@ -502,7 +505,7 @@ def get_defect_batches():
     return {"batches": _df_to_records(result_df)}
 
 
-# 7. AI Analyst
+# ── 7. AI Analyst ────────────────────────────────────────────────────
 HF_MODEL   = "meta-llama/Llama-3.3-70B-Instruct"
 HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 HF_API_KEY = os.getenv("HF_API_KEY", "")

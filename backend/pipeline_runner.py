@@ -1,3 +1,32 @@
+"""
+pipeline/pipeline_runner.py
+============================
+Orchestrator pipeline end-to-end PJK-GM016.
+
+Urutan eksekusi:
+    Upload Excel
+        ↓
+    run_preprocessing()  →  dataset_clean.csv
+        ↓
+    run_modelling()      →  dataset_with_predictions.csv
+        ↓
+    run_clustering()     →  dataset_clustered.csv
+
+Cara pakai di app.py (Streamlit):
+    from pipeline.pipeline_runner import run_pipeline
+
+    uploaded_file = st.file_uploader(...)
+    if uploaded_file:
+        result = run_pipeline(uploaded_file)
+
+        # Akses hasil
+        result["clean_df"]       → DataFrame hasil preprocessing
+        result["prediction_df"]  → DataFrame + kolom prediksi model
+        result["clustered_df"]   → DataFrame + kolom cluster (FINAL)
+        result["model_results"]  → dict metrics, feature importance, dll
+        result["cluster_results"]→ dict profil cluster, PCA coords, dll
+"""
+
 import os
 import sys
 import traceback
@@ -73,14 +102,14 @@ def run_pipeline(
 
     try:
         # ── STEP 1: Preprocessing ──────────────────────────────────
-        _notify(1, "Step 1/3 — Preprocessing data mentah...")
+        _notify(1, "⚙️ Step 1/3 — Preprocessing data mentah...")
 
         clean_path = os.path.join(output_dir, "dataset_clean.csv") if save_outputs else None
         clean_df   = run_preprocessing(uploaded_file, save_path=clean_path)
         result["clean_df"] = clean_df
 
         # ── STEP 2: Modelling ──────────────────────────────────────
-        _notify(2, "Step 2/3 — Training model (RF, GB, Isolation Forest)...")
+        _notify(2, "🤖 Step 2/3 — Training model (RF, GB, Isolation Forest)...")
 
         pred_path   = os.path.join(output_dir, "dataset_with_predictions.csv") if save_outputs else None
         pred_df, model_results = run_modelling(
@@ -92,7 +121,7 @@ def run_pipeline(
         result["model_results"]  = model_results
 
         # ── STEP 3: Clustering ─────────────────────────────────────
-        _notify(3, "Step 3/3 — K-Means clustering & PCA...")
+        _notify(3, "🔍 Step 3/3 — K-Means clustering & PCA...")
 
         cluster_path = os.path.join(output_dir, "dataset_clustered.csv") if save_outputs else None
         clustered_df, cluster_results = run_clustering(
@@ -169,7 +198,9 @@ def get_pipeline_summary(result: dict) -> str:
     return "\n".join(lines)
 
 
+# ══════════════════════════════════════════════════════
 # QUICK TEST
+# ══════════════════════════════════════════════════════
 if __name__ == "__main__":
     excel_file = (
         sys.argv[1]

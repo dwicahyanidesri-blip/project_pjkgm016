@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { Upload, ClipboardList, ArrowRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { uploadDataset, predictSingle } from '../hooks/useApi'
 
-// Field manual input — parameter utama granulasi
+// Field manual input parameter utama granulasi
 const MANUAL_FIELDS = [
   { key: 'cb1_suhu_rata',   label: 'Suhu Rata-rata CB1 (°C)',    default: 72.0, min: 50, max: 100, step: 0.1 },
   { key: 'cb2_suhu_rata',   label: 'Suhu Rata-rata CB2 (°C)',    default: 72.0, min: 50, max: 100, step: 0.1 },
@@ -41,7 +41,7 @@ function UploadPanel({ onDataLoaded, onNavigate }) {
         Upload File Dataset
       </h3>
       <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-        Upload file Excel rekap granulasi (.xlsx atau .xls). Sistem akan otomatis memproses 
+        Upload file dataset rekap granulasi (.xlsx, .xls, atau csv) lalu sistem akan otomatis memproses 
         seluruh data dan menjalankan analisis AI untuk semua batch sekaligus.
       </p>
 
@@ -54,14 +54,14 @@ function UploadPanel({ onDataLoaded, onNavigate }) {
           <Upload size={24} className="text-blue-500" />
         </div>
         <div className="text-sm font-semibold text-slate-700 mb-1">Klik untuk pilih file</div>
-        <div className="text-xs text-slate-400">Format: .xlsx, .xls, .csv — Maks. 200MB</div>
+        <div className="text-xs text-slate-400">Format: .xlsx, .xls, .csv (maks 200MB)</div>
         <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFile} />
       </div>
 
       {status === 'loading' && (
         <div className="mt-4 flex items-center gap-3 text-sm text-blue-600 bg-blue-50 rounded-xl p-3">
           <Loader2 size={16} className="animate-spin" />
-          Memproses data dan menjalankan pipeline AI...
+          Sedang memproses data
         </div>
       )}
       {status === 'success' && (
@@ -82,9 +82,9 @@ function UploadPanel({ onDataLoaded, onNavigate }) {
         <ol className="space-y-1.5">
           {[
             'Data dibersihkan dan divalidasi otomatis',
-            'Model Random Forest dan Isolation Forest memprediksi setiap batch',
-            'K-Means mengelompokkan batch berdasarkan karakteristik',
-            'Hasil tersedia di semua tab dashboard',
+            'Model AI akan memprediksi kerusakan di setiap batch',
+            'Lalu menganalisis penyebab kerusakan di setiap batch',
+            'Lalu seluruh hasil akan tersedia di tab "Monitoring", "Analisis Defect", dan "AI Analyst"',
           ].map((s, i) => (
             <li key={i} className="flex items-start gap-2 text-xs text-slate-500">
               <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-bold text-[10px]">
@@ -271,22 +271,58 @@ function ManualPanel({ onResult }) {
 }
 
 export default function Prediksi({ onDataLoaded, onNavigate }) {
+  const [step, setStep] = useState('choice') // 'choice' | 'upload' | 'manual'
+
+  if (step === 'choice') {
+    return (
+      <div className="pt-20 min-h-screen bg-white flex items-center justify-center">
+        <div className="max-w-2xl mx-auto px-8 py-20 text-center">
+          <h1 className="text-3xl text-slate-900 mb-3">Lakukan Prediksi</h1>
+          <p className="text-slate-500 mb-10 leading-relaxed">
+            Terdapat dua cara untuk melakukan prediksi kualitas batch, upload file dataset untuk analisis terhadap banyak batch sekaligus atau input parameter secara manual untuk memprediksi kualitas satu batch secara langsung
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={() => setStep('upload')} className="btn-primary justify-center">
+              <Upload size={16} />
+              Upload File Dataset
+            </button>
+            <button onClick={() => setStep('manual')} className="btn-primary justify-center">
+              <ClipboardList size={16} />
+              Input Parameter Manual
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (step === 'upload') {
+    return (
+      <div className="pt-20 min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto px-8 py-10">
+          <button
+            onClick={() => setStep('choice')}
+            className="mb-6 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            ← Kembali ke pilihan cara prediksi
+          </button>
+          <UploadPanel onDataLoaded={onDataLoaded} onNavigate={onNavigate} />
+        </div>
+      </div>
+    )
+  }
+
+  // step === 'manual'
   return (
     <div className="pt-20 min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-8 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl text-slate-900 mb-2">Prediksi Kualitas Batch</h1>
-          <p className="text-slate-500">
-            Pilih salah satu cara di bawah — upload file dataset untuk analisis massal,
-            atau masukkan parameter manual untuk prediksi satu batch secara langsung.
-          </p>
-        </div>
-
-        {/* Two panels */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <UploadPanel onDataLoaded={onDataLoaded} onNavigate={onNavigate} />
-          <ManualPanel />
-        </div>
+      <div className="max-w-3xl mx-auto px-8 py-10">
+        <button
+          onClick={() => setStep('choice')}
+          className="mb-6 text-sm text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          ← Kembali ke pilihan cara prediksi
+        </button>
+        <ManualPanel />
       </div>
     </div>
   )
