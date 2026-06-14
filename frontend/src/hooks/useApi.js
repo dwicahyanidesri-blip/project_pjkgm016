@@ -1,6 +1,7 @@
 // src/hooks/useApi.js
 import axios from 'axios'
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const api = axios.create({ baseURL: '/api' })
 
 export const uploadDataset       = (file)            => { const f = new FormData(); f.append('file', file); return api.post('/upload', f, { headers: { 'Content-Type': 'multipart/form-data' } }) }
