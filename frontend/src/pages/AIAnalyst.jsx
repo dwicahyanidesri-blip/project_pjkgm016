@@ -6,8 +6,7 @@ import {
   Calendar, ListChecks, ChevronRight, RefreshCw, FileText,
 } from 'lucide-react'
 import axios from 'axios'
-
-const api = axios.create({ baseURL: '/api' })
+import api from '../hooks/useApi'
 
 // ─────────────────────────────────────────────────────────────
 // KARTU ANALISIS — 6 jenis laporan yang bisa di-generate
