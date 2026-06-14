@@ -5,7 +5,6 @@ import {
   TrendingUp, AlertTriangle, Lightbulb, BarChart2,
   Calendar, ListChecks, ChevronRight, RefreshCw, FileText,
 } from 'lucide-react'
-import axios from 'axios'
 import api from '../hooks/useApi'
 
 // ─────────────────────────────────────────────────────────────
