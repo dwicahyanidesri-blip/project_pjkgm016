@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchOverview } from '../hooks/useApi'
+import api from '../hooks/useApi'
 import { EmptyState }    from '../components/UI'
 import {
   TrendingUp, AlertTriangle, Lightbulb, BarChart2,
   Calendar, ListChecks, ChevronRight, RefreshCw, FileText,
 } from 'lucide-react'
-import api from '../hooks/useApi'
 
 // ─────────────────────────────────────────────────────────────
 // KARTU ANALISIS — 6 jenis laporan yang bisa di-generate
