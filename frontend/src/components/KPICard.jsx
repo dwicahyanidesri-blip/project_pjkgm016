@@ -1,4 +1,3 @@
-// src/components/KPICard.jsx
 export default function KPICard({ label, value, sub, color = 'blue' }) {
   const gradients = {
     blue:   'from-blue-500 to-blue-700',

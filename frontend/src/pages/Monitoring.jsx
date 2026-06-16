@@ -172,7 +172,7 @@ export default function Monitoring({ hasData }) {
         </div>
       </div>
 
-      {/* Charts row 2 — Normal vs Defect per Bulan */}
+      {/* Charts row 2, Normal vs Defect per Bulan */}
       {defect_trend.length > 0 && (
         <div className="card">
           <div className="section-title">Jumlah Normal vs Defect per Bulan</div>
@@ -190,7 +190,7 @@ export default function Monitoring({ hasData }) {
         </div>
       )}
 
-      {/* Charts row 3 — Perbandingan Normal vs Defect */}
+      {/* Charts row 3, Perbandingan Normal vs Defect */}
       {compare_metrics?.length > 0 && (
         <div>
           <h2 className="text-xl text-slate-800 mb-1" style={{ fontFamily: 'Fraunces, serif' }}>

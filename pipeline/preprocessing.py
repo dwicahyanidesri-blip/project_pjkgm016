@@ -1,29 +1,3 @@
-"""
-pipeline/preprocessing.py
-==========================
-Refactored dari 01_preprocessing.ipynb — logika IDENTIK, tidak ada perubahan algoritma.
-
-Alur:
-  1. Deteksi baris kuning (defect) via openpyxl fmt workbook
-  2. Load nilai via data_only=True workbook
-  3. Baca header baris ke-3, rename duplikat
-  4. Baca semua baris data (ab baris 4), skip baris kosong total
-  5. Seleksi kolom fitur (FEATURE_COLS mapping)
-  6. Drop baris tanpa material_desc & duplikat
-  7. Handle outlier KA: buat flag sebelum normalisasi
-  8. Set outlier Suhu ke NaN (jaga sinyal KA)
-  9. Hapus kolom all-null
- 10. Imputasi numerik: median per material → median global
- 11. Imputasi kategorik: forward fill + 'TIDAK DIKETAHUI'
- 12. Feature engineering (suhu rata, std, yield deviate, KA outlier flag, suhu tinggi, no_batch_num)
- 13. Encode kategorik (lapis, bulan, line, shift, keterangan)
- 14. Cek final missing → isi median/UNKNOWN
- 15. Return DataFrame bersih
-
-Input  : file-like object (.xlsx / .xls / .csv) atau path string
-Output : pd.DataFrame  (=== dataset_clean.csv)
-"""
-
 import io
 import warnings
 import numpy as np
@@ -32,20 +6,16 @@ from openpyxl import load_workbook
 
 warnings.filterwarnings("ignore")
 
-# ══════════════════════════════════════════════════════
-# KONSTANTA — diambil persis dari notebook
-# ══════════════════════════════════════════════════════
-
 SHEET_NAME = "BFTP"
 
 FEATURE_COLS = {
-    # === IDENTITAS ===
+    # IDENTITAS
     "Material description":  "material_desc",
     "Material":              "material_kode",
     "Code Material ":        "code_material",
     "Batch Ke-":             "batch_ke",
 
-    # === LAPIS 1 - GRANULASI BASAH ===
+    # LAPIS 1 - GRANULASI BASAH
     "LAPIS 1":                               "lapis1_warna",
     "BULAN PRODUKSI CB 1":                   "cb1_bulan",
     "SHIFT":                                 "cb1_shift",
@@ -98,14 +68,14 @@ FEATURE_COLS = {
     "NO AYAKAN ALEX":                        "cb1_no_ayakan_alex",
     "NO AYAKAN OG YC/ FREWITT":              "cb1_no_ayakan_frewitt",
 
-    # === LAPIS 1 - CAMPUR KERING ===
+    # LAPIS 1 - CAMPUR KERING
     "JML GRANUL (+) NYATA ( Kg )":           "ck1_jml_granul_nyata",
     "TEORITIS GRANUL_1":                     "ck1_teoritis_granul",
     "% YIELD":                               "ck1_pct_yield",
     "KA setelah CK":                         "ck1_ka_setelah_ck",
     "KETERANGAN":                            "ck1_keterangan",
 
-    # === LAPIS 2 - GRANULASI BASAH ===
+    # LAPIS 2 - GRANULASI BASAH
     "LAPIS 2":                               "lapis2_warna",
     "BULAN PRODUKSI CB 2":                   "cb2_bulan",
     "SHIFT_1":                               "cb2_shift",
@@ -170,7 +140,7 @@ FEATURE_COLS = {
     "NO AYAKAN ALEX_1":                      "cb2_no_ayakan_alex",
     "NO AYAKAN OG YC/ FREWITT_1":            "cb2_no_ayakan_frewitt",
 
-    # === LAPIS 2 - CAMPUR KERING ===
+    # LAPIS 2 - CAMPUR KERING
     "JML GRANUL BR (+) - (KG)":              "ck2_jml_granul_nyata",
     "TEORITIS GRANULASI KEING":              "ck2_teoritis_granul",
     "% YILD_1":                              "ck2_pct_yield",
@@ -196,8 +166,8 @@ KA_COLS = [
 ]
 KA_MIN, KA_MAX = 2.0, 10.0
 
-SUHU_MIN, SUHU_MAX = 55.0, 95.0        # batas wajar suhu
-SUHU_THRESHOLD_TINGGI = 75.0            # flag suhu tinggi
+SUHU_MIN, SUHU_MAX = 55.0, 95.0        
+SUHU_THRESHOLD_TINGGI = 75.0            
 
 BULAN_MAP = {
     "JANUARI": 1, "FEBRUARI": 2, "MARET": 3, "APRIL": 4,
@@ -206,10 +176,7 @@ BULAN_MAP = {
 }
 
 
-# ══════════════════════════════════════════════════════
 # HELPER INTERNAL
-# ══════════════════════════════════════════════════════
-
 def _to_bytes(uploaded_file):
     """Konversi uploaded_file (Streamlit UploadedFile atau path) ke bytes."""
     if isinstance(uploaded_file, (str, bytes)):
@@ -217,16 +184,12 @@ def _to_bytes(uploaded_file):
             with open(uploaded_file, "rb") as f:
                 return f.read()
         return uploaded_file
-    # Streamlit UploadedFile
+    # UploadedFile
     uploaded_file.seek(0)
     return uploaded_file.read()
 
 
 def _detect_yellow_rows(file_bytes: bytes) -> set:
-    """
-    Langkah 1a: Deteksi baris Excel yang diwarnai kuning (FFFFFF00 atau FFFF0000).
-    Mengembalikan set nomor baris Excel (1-based).
-    """
     wb_fmt = load_workbook(io.BytesIO(file_bytes))
     ws_fmt = wb_fmt[SHEET_NAME]
     yellow_rows = set()
@@ -241,17 +204,11 @@ def _detect_yellow_rows(file_bytes: bytes) -> set:
 
 
 def _load_data(file_bytes: bytes, yellow_rows: set):
-    """
-    Langkah 1b–3: Load workbook data_only, baca header baris 3, baca data ab baris 4.
-    Mengembalikan df_raw dengan kolom is_defect & excel_row.
-    """
     wb = load_workbook(io.BytesIO(file_bytes), data_only=True)
     ws = wb[SHEET_NAME]
 
-    # Baca header baris ke-3
     raw_headers = [cell.value for cell in list(ws.iter_rows(min_row=3, max_row=3, max_col=193))[0]]
 
-    # Rename kolom duplikat dengan suffix
     seen = {}
     clean_headers = []
     for h in raw_headers:
@@ -264,7 +221,6 @@ def _load_data(file_bytes: bytes, yellow_rows: set):
             seen[h] = 0
             clean_headers.append(h)
 
-    # Baca baris data (ab baris 4)
     rows_data, is_defect_flags, excel_row_nums = [], [], []
     for i, row in enumerate(ws.iter_rows(min_row=4, max_col=193, values_only=True), start=4):
         vals = list(row)
@@ -282,8 +238,20 @@ def _load_data(file_bytes: bytes, yellow_rows: set):
     return df_raw
 
 
+def _load_data_csv(file_bytes: bytes) -> pd.DataFrame:
+    df_raw = pd.read_csv(io.BytesIO(file_bytes), low_memory=False)
+
+    if "is_defect" not in df_raw.columns:
+        df_raw["is_defect"] = 0
+    df_raw["is_defect"] = pd.to_numeric(df_raw["is_defect"], errors="coerce").fillna(0).astype(int)
+
+    if "excel_row" not in df_raw.columns:
+        df_raw["excel_row"] = range(4, len(df_raw) + 4)
+
+    return df_raw
+
+
 def _select_columns(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """Langkah 3: Seleksi & rename kolom sesuai FEATURE_COLS."""
     available = {k: v for k, v in FEATURE_COLS.items() if k in df_raw.columns}
     df = df_raw[list(available.keys()) + ["is_defect", "excel_row"]].copy()
     df = df.rename(columns=available)
@@ -298,10 +266,6 @@ def _clean_rows(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _handle_ka_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Langkah 5A: Buat flag KA ekstrem SEBELUM normalisasi.
-    Nilai KA > 10 atau < 2 dijadikan NaN SETELAH flag disimpan.
-    """
     for col in KA_COLS:
         if col not in df.columns:
             continue
@@ -314,10 +278,6 @@ def _handle_ka_outliers(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _handle_suhu_outliers(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
-    """
-    Langkah 5B: Set nilai Suhu di luar [55, 95] ke NaN.
-    KA outlier TIDAK di-NaN-kan di sini (sudah diflag di 5A).
-    """
     suhu_cols = [c for c in numeric_cols if "suhu" in c.lower()]
     for col in suhu_cols:
         if col in df.columns:
@@ -327,7 +287,6 @@ def _handle_suhu_outliers(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
 
 
 def _impute_numeric(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
-    """Langkah 5D numerik: median per material → median global."""
     numeric_to_impute = [c for c in numeric_cols if c in df.columns]
     for col in numeric_to_impute:
         if df[col].isnull().sum() == 0:
@@ -356,7 +315,7 @@ def _impute_categorical(df: pd.DataFrame) -> pd.DataFrame:
 
 def _feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Langkah 6: Tambah fitur turunan — PERSIS dari notebook.
+    Tambah fitur turunan
     - cb1_suhu_rata, cb2_suhu_rata
     - cb1_suhu_std,  cb2_suhu_std
     - cb1_yield_deviate, ck1_yield_deviate, cb2_yield_deviate
@@ -404,7 +363,7 @@ def _feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
-    """Langkah 7: Encode kategorik — PERSIS dari notebook."""
+    """Encode kategorik"""
     # Lapis warna
     for col in ["lapis1_warna", "lapis2_warna"]:
         if col in df.columns:
@@ -435,58 +394,44 @@ def _encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _rulebased_defect_label(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fallback labeling berbasis threshold — dipakai HANYA ketika tidak ada
-    baris kuning di Excel (operator belum menandai secara manual).
 
-    Hanya menggunakan kondisi yang PASTI merupakan indikator defect
-    tanpa bergantung pada karakteristik produk:
-      - Ada suhu decoct individual > 75°C  (threshold dari 01_preprocessing.ipynb)
-      - Yield CB1 < 99.0% atau > 103.1%    (batas spesifikasi)
-      - Yield CK1 < 99.1% atau > 102.9%    (batas spesifikasi)
-      - Yield CB2 < 99.1% atau > 102.3%    (batas spesifikasi)
-      - Tidak ada nomor batch               (baris rework gagal)
-
-    KA sengaja TIDAK dimasukkan karena range normal KA berbeda-beda
-    tergantung jenis produk — tidak bisa pakai threshold universal.
-    """
     conds = []
 
-    # ── Suhu individual CB1 (threshold 75°C persis dari notebook) ──
+    # Suhu individual CB1
     suhu_cb1_cols = [c for c in df.columns
                      if c.startswith("cb1_suhu_lot") and "diosna" not in c]
     for col in suhu_cb1_cols:
         conds.append(df[col] > 75.0)
 
-    # ── Suhu individual CB2 ─────────────────────────────────────────
+    # Suhu individual CB2
     suhu_cb2_cols = [c for c in df.columns
                      if c.startswith("cb2_suhu_lot") and "diosna" not in c]
     for col in suhu_cb2_cols:
         conds.append(df[col] > 75.0)
 
-    # ── Yield CB1 (skip 0 = missing) ───────────────────────────────
+    # Yield CB1
     if "cb1_pct_yield" in df.columns:
         valid = df["cb1_pct_yield"] > 0
         conds.append(valid & ((df["cb1_pct_yield"] < 99.0) | (df["cb1_pct_yield"] > 103.1)))
 
-    # ── Yield CK1 ──────────────────────────────────────────────────
+    # Yield CK1
     if "ck1_pct_yield" in df.columns:
         valid = df["ck1_pct_yield"] > 0
         conds.append(valid & ((df["ck1_pct_yield"] < 99.1) | (df["ck1_pct_yield"] > 102.9)))
 
-    # ── Yield CB2 ──────────────────────────────────────────────────
+    # Yield CB2
     if "cb2_pct_yield" in df.columns:
         valid = df["cb2_pct_yield"] > 0
         conds.append(valid & ((df["cb2_pct_yield"] < 99.1) | (df["cb2_pct_yield"] > 102.3)))
 
-    # ── Tidak ada nomor batch (baris rework/sublapis gagal) ─────────
+    # Tidak ada nomor batch (baris rework/sublapis gagal)
     if "no_batch_num" in df.columns:
         conds.append(df["no_batch_num"] == 1)
 
     if not conds:
         return df
 
-    # OR semua kondisi → jika salah satu terpenuhi = defect
+    # OR semua kondisi, jika salah satu terpenuhi maka termasuk defect
     combined = conds[0].fillna(False)
     for c in conds[1:]:
         combined = combined | c.fillna(False)
@@ -496,7 +441,7 @@ def _rulebased_defect_label(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _final_missing_cleanup(df: pd.DataFrame) -> pd.DataFrame:
-    """Langkah 8: Isi sisa missing dengan median (numerik) atau UNKNOWN (teks)."""
+    """Isi sisa missing dengan median (numerik) atau UNKNOWN (teks)."""
     mv_final = df.isnull().sum()
     mv_final = mv_final[mv_final > 0]
     for col in mv_final.index:
@@ -507,34 +452,37 @@ def _final_missing_cleanup(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ══════════════════════════════════════════════════════
 # PUBLIC API
-# ══════════════════════════════════════════════════════
-
-def run_preprocessing(uploaded_file, save_path: str = None) -> pd.DataFrame:
+def run_preprocessing(uploaded_file, save_path: str = None, is_csv: bool = False) -> pd.DataFrame:
     """
-    Jalankan seluruh pipeline preprocessing dari 01_preprocessing.ipynb.
+    Jalankan seluruh pipeline preprocessing
 
     Parameters
     ----------
     uploaded_file : str | bytes | Streamlit UploadedFile
-        File Excel mentah (.xlsx / .xls).
+        File mentah (.xlsx / .xls / .csv).
     save_path : str, optional
         Jika diberikan, simpan hasil ke path ini sebagai CSV.
+    is_csv : bool, optional
+        True jika file yang diupload adalah .csv.
 
     Returns
     -------
     pd.DataFrame
-        Dataset bersih siap modeling (= dataset_clean.csv).
+        Dataset bersih siap modeling (dataset_clean.csv).
     """
     # Konversi ke bytes
     file_bytes = _to_bytes(uploaded_file)
 
-    # 1. Deteksi baris kuning
-    yellow_rows = _detect_yellow_rows(file_bytes)
+    if is_csv:
+        yellow_rows = set()
+        df_raw = _load_data_csv(file_bytes)
+    else:
+        # 1. Deteksi baris kuning
+        yellow_rows = _detect_yellow_rows(file_bytes)
 
-    # 2–3. Load workbook & baca header + data
-    df_raw = _load_data(file_bytes, yellow_rows)
+        # 2. Load workbook dan baca header lalu data
+        df_raw = _load_data(file_bytes, yellow_rows)
 
     # 3. Seleksi kolom
     df = _select_columns(df_raw)
@@ -550,10 +498,10 @@ def run_preprocessing(uploaded_file, save_path: str = None) -> pd.DataFrame:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # 5A. Handle KA outlier (buat flag, jangan hapus)
+    # 5A. Handle KA outlier
     df = _handle_ka_outliers(df)
 
-    # 5B. Set Suhu outlier → NaN
+    # 5B. Set Suhu outlier
     df = _handle_suhu_outliers(df, numeric_cols)
 
     # 5C. Hapus kolom all-null
@@ -565,14 +513,13 @@ def run_preprocessing(uploaded_file, save_path: str = None) -> pd.DataFrame:
     # 5D. Imputasi numerik
     df = _impute_numeric(df, numeric_cols)
 
-    # 5D. Imputasi kategorik
+    # 5E. Imputasi kategorik
     df = _impute_categorical(df)
 
-    # 6. Feature engineering
+    # 6A. Feature engineering
     df = _feature_engineering(df)
 
-    # 6B. Fallback rule-based labeling jika tidak ada warna kuning di Excel
-    # (operator belum menandai baris defect secara manual)
+    # 6B. Fallback rule-based labeling
     if len(yellow_rows) == 0:
         df = _rulebased_defect_label(df)
 
@@ -596,9 +543,7 @@ def run_preprocessing(uploaded_file, save_path: str = None) -> pd.DataFrame:
     return df_output
 
 
-# ══════════════════════════════════════════════════════
-# QUICK TEST (jalankan langsung: python preprocessing.py)
-# ══════════════════════════════════════════════════════
+# QUICK TEST
 if __name__ == "__main__":
     import sys, os
 

@@ -1,10 +1,8 @@
 {
   "optimal_k": 2,
-  "silhouette_score": 0.613633954007122,
-  "davies_bouldin": 1.8191601614508885,
-  "inertia": 2532.0832623308784,
-  "best_k_sil": 2,
-  "best_k_db": 2,
+  "silhouette_score": 0.28762571205342674,
+  "davies_bouldin": 1.5350885202529894,
+  "inertia": 2519.4037124731803,
   "cluster_features": [
     "cb1_waktu_lot1_ph1",
     "cb1_waktu_lot1_ph2",
@@ -74,13 +72,13 @@
     "cb2_chopper4"
   ],
   "pca2_var_ratio": [
-    0.1683542335283071,
-    0.1314948532210716
+    0.17010835564631555,
+    0.12571669791868295
   ],
   "pca3_var_ratio": [
-    0.1683542335283071,
-    0.1314948532210716,
-    0.07378728506429422
+    0.17010835564631555,
+    0.12571669791868295,
+    0.07498744214753962
   ],
   "cluster_profile": {
     "n": {
@@ -129,7 +127,7 @@
     },
     "KA CB2": {
       "Cluster 0": 3.493,
-      "Cluster 1": 3.367
+      "Cluster 1": 3.368
     },
     "KA CK1": {
       "Cluster 0": 4.695,
@@ -159,11 +157,5 @@
       "Cluster 0": 536.962,
       "Cluster 1": 538.25
     }
-  },
-  "defect_rates": [
-    12.5,
-    100.0
-  ],
-  "max_risk_cluster": 1,
-  "min_risk_cluster": 0
+  }
 }

@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { ArrowRight, CheckCircle, BarChart2, Search, FileText } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, CheckCircle, BarChart2, Search, FileText, Zap, Droplets, Layers, Target } from 'lucide-react'
 import Footer from '../components/Footer'
 
 const FEATURES = [
@@ -47,6 +47,17 @@ const HOW_TO = [
 ]
 
 export default function Beranda({ onNavigate, onViewMonitoring, onSectionChange, onNavigateSection }) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+
+  const handleTiltMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const px = (e.clientX - rect.left) / rect.width
+    const py = (e.clientY - rect.top) / rect.height
+    setTilt({ x: (0.5 - py) * 10, y: (px - 0.5) * 10 })
+  }
+
+  const handleTiltLeave = () => setTilt({ x: 0, y: 0 })
+
   useEffect(() => {
     if (!onSectionChange) return
     const ids = ['beranda', 'fitur', 'tutorial']
@@ -122,42 +133,76 @@ export default function Beranda({ onNavigate, onViewMonitoring, onSectionChange,
             </div>
           </div>
 
-          {/* Right — ilustrasi statistik */}
-          <div className="animate-fade-up delay-200">
-            <div className="card-blue rounded-3xl p-8 relative">
-              <div className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">
-                Kemampuan Sistem
-              </div>
-              <div className="space-y-4">
-                {[
-                  { label: 'Akurasi Deteksi Defect', val: 94, color: 'bg-blue-500' },
-                  { label: 'Kecepatan Analisis (per batch)', val: 100, note: '< 10 detik', color: 'bg-emerald-500' },
-                  { label: 'Parameter yang Dianalisis', val: 80, note: '40+ parameter', color: 'bg-violet-500' },
-                  { label: 'Reduksi Cek Manual', val: 90, note: '~90%', color: 'bg-sky-500' },
-                ].map(({ label, val, note, color }) => (
-                  <div key={label}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="text-slate-600 font-medium">{label}</span>
-                      <span className="text-slate-400 text-xs">{note ?? `${val}%`}</span>
-                    </div>
-                    <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
-                      <div className={`h-full ${color} rounded-full`} style={{ width: `${val}%` }} />
-                    </div>
-                  </div>
-                ))}
+          {/* Right */}
+          <div className="animate-fade-up delay-200 relative [perspective:1400px]">
+            {/* Dekorasi blur di belakang foto */}
+            <div className="absolute -top-10 -right-10 w-44 h-44 bg-blue-200/50 rounded-full blur-3xl -z-10" />
+            <div className="absolute -bottom-12 -left-10 w-52 h-52 bg-blue-100/60 rounded-full blur-3xl -z-10" />
+
+            <div
+              onMouseMove={handleTiltMove}
+              onMouseLeave={handleTiltLeave}
+              className="group relative rounded-3xl overflow-hidden border border-blue-100
+                         shadow-xl shadow-blue-100/70 transition-transform duration-300 ease-out will-change-transform"
+              style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
+            >
+              <img
+                src="/images/hero-produksi.jpg"
+                alt="Proses produksi granulasi di ruang bersih farmasi"
+                className="w-full h-[420px] lg:h-[480px] object-cover transition-transform duration-700 ease-out
+                           group-hover:scale-110"
+              />
+              {/* gradient overlay agar teks tetap terbaca */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/75 via-slate-900/10 to-transparent" />
+
+              {/* Badge kecepatan analisis */}
+              <div className="absolute top-5 left-5 bg-white/90 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg
+                               flex items-center gap-3 animate-float">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                  <Zap size={18} className="text-emerald-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-slate-900 leading-none">&lt; 10 detik</div>
+                  <div className="text-[11px] text-slate-400">Analisis per batch</div>
+                </div>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-blue-100 grid grid-cols-3 gap-4 text-center">
-                {[
-                  { n: '3', label: 'Model AI' },
-                  { n: '46+', label: 'Batch Dianalisis' },
-                  { n: '6', label: 'Modul Dashboard' },
-                ].map(({ n, label }) => (
-                  <div key={label}>
-                    <div className="text-2xl font-bold text-blue-700" style={{ fontFamily: 'Fraunces, serif' }}>{n}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">{label}</div>
-                  </div>
-                ))}
+              {/* Badge akurasi */}
+              <div className="absolute top-5 right-5 bg-white/90 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lg
+                               flex items-center gap-3 animate-float float-delay">
+                <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                  <BarChart2 size={18} className="text-blue-600" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-slate-900 leading-none" style={{ fontFamily: 'Fraunces, serif' }}>94%</div>
+                  <div className="text-[11px] text-slate-500">Akurasi Deteksi Defect</div>
+                </div>
+              </div>
+
+              {/* Konten bawah */}
+              <div className="absolute bottom-0 left-0 right-0 p-5 lg:p-6 text-white">
+                <div className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-1">
+                  Kemampuan Sistem
+                </div>
+                <h3 className="text-lg lg:text-xl font-semibold mb-4" style={{ fontFamily: 'Fraunces, serif' }}>
+                  Granulasi Farmasi yang Dipantau AI Pharma
+                </h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { n: '3', label: 'Model Machine Learning' },
+                    { n: '46+', label: 'Batch Dianalisis' },
+                    { n: '3', label: 'Tampilan Dashboard' },
+                  ].map(({ n, label }) => (
+                    <div
+                      key={label}
+                      className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2.5 text-center
+                                 border border-white/15 transition-colors duration-200 hover:bg-white/20"
+                    >
+                      <div className="text-xl font-bold" style={{ fontFamily: 'Fraunces, serif' }}>{n}</div>
+                      <div className="text-[11px] text-blue-100 mt-0.5">{label}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -165,7 +210,7 @@ export default function Beranda({ onNavigate, onViewMonitoring, onSectionChange,
       </section>
 
       {/* Fitur */}
-      <section id="fitur" className="py-16 px-8 bg-slate-50">
+      <section id="fitur" className="py-16 px-8 bg-blue-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl text-slate-900 mb-3">Fitur Utama AI Pharma</h2>

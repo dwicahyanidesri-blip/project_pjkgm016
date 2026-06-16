@@ -41,7 +41,7 @@
 
 @layer components {
 
-  /* ── Navbar ── */
+  /* Navbar */
   .navbar {
     @apply fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md;
     border-bottom: 1px solid var(--blue-100);
@@ -59,7 +59,7 @@
     @apply absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full;
   }
 
-  /* ── Cards ── */
+  /* Cards */
   .card {
     @apply bg-white rounded-2xl p-6;
     border: 1px solid var(--blue-100);
@@ -70,7 +70,7 @@
     border: 1px solid var(--blue-200);
   }
 
-  /* ── KPI Cards ── */
+  /* KPI Cards */
   .kpi-card {
     @apply rounded-2xl p-5 relative overflow-hidden;
     border: 1px solid var(--blue-100);
@@ -88,7 +88,7 @@
     background: rgba(255,255,255,0.1);
   }
 
-  /* ── Section title ── */
+  /* Section title */
   .section-title {
     font-family: 'Fraunces', serif;
     @apply text-base font-semibold text-slate-700 mb-4;
@@ -96,7 +96,7 @@
     padding-left: 10px;
   }
 
-  /* ── Status pills ── */
+  /* Status pills */
   .pill-normal {
     @apply inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full;
     border: 1px solid #a7f3d0;
@@ -106,7 +106,7 @@
     border: 1px solid #fecaca;
   }
 
-  /* ── Upload gate ── */
+  /* Upload gate */
   .upload-gate {
     @apply flex flex-col items-center justify-center py-28 gap-5;
   }
@@ -118,7 +118,7 @@
     padding: 48px 40px;
   }
 
-  /* ── Buttons ── */
+  /* Buttons */
   .btn-primary {
     @apply inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700
            text-white text-sm font-semibold py-3 px-6 rounded-xl transition-all duration-200;
@@ -131,11 +131,11 @@
     border: 1.5px solid var(--blue-200);
   }
 
-  /* ── Chat bubble ── */
+  /* Chat bubble */
   .bubble-bot  { @apply bg-slate-100 text-slate-800 rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed; }
   .bubble-user { @apply bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed; }
 
-  /* ── Table ── */
+  /* Table */
   .data-table th {
     @apply px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap;
     background: var(--blue-50);
@@ -148,7 +148,7 @@
   .data-table tr:hover td { background: var(--blue-50); }
 }
 
-/* ── Animations ── */
+/* Animations */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -157,8 +157,14 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
 .animate-fade-up  { animation: fade-up  0.5s ease forwards; }
 .animate-fade-in  { animation: fade-in  0.4s ease forwards; }
+.animate-float    { animation: float 5s ease-in-out infinite; }
+.float-delay { animation-delay: 1.2s; }
 .delay-100 { animation-delay: 0.1s; opacity: 0; }
 .delay-200 { animation-delay: 0.2s; opacity: 0; }
 .delay-300 { animation-delay: 0.3s; opacity: 0; }

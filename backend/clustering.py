@@ -1,28 +1,3 @@
-"""
-pipeline/clustering.py
-=======================
-Refactored dari 04_clustering.ipynb — logika IDENTIK, tidak ada perubahan algoritma.
-
-Alur:
-  1.  Filter CLUSTER_FEATURES (hanya kolom yang benar-benar ada di df)
-  2.  Imputasi median untuk missing value pada fitur clustering
-  3.  StandardScaler (fit on seluruh data clustering)
-  4.  Elbow + Silhouette + Davies-Bouldin untuk k=2..8
-  5.  Pilih OPTIMAL_K = argmax Silhouette (prioritaskan vs Davies-Bouldin)
-  6.  K-Means final (n_init=50, max_iter=1000, algorithm='lloyd')
-  7.  PCA 2D & 3D (n_components=2 dan 3, random_state=42)
-  8.  Profil cluster: rata-rata PROFILE_FEATURES per cluster
-  9.  Heatmap Z-score profil cluster
-  10. Feature importance cluster: RF 300 trees → Gini importance
-  11. Radar chart 8 dimensi kunci
-  12. Tambah kolom Cluster & Cluster_Label ke df
-  13. Simpan dataset_clustered.csv + semua model .pkl/.json
-
-Input  : pd.DataFrame  (output run_modelling — dataset_with_predictions)
-Output : pd.DataFrame  (=== dataset_clustered.csv)
-         dict cluster_results  (metrics, profile, PCA coords, importances)
-"""
-
 import os
 import json
 import warnings
@@ -38,9 +13,6 @@ from sklearn.ensemble      import RandomForestClassifier
 
 warnings.filterwarnings("ignore")
 
-# ══════════════════════════════════════════════════════
-# KONSTANTA — diambil persis dari notebook
-# ══════════════════════════════════════════════════════
 
 TARGET = "is_defect"
 
@@ -49,7 +21,7 @@ CLUSTER_COLORS = [
     "#e74c3c", "#f39c12", "#2c3e50", "#27ae60",
 ]
 
-# Kandidat fitur clustering — persis dari notebook section 3
+# Kandidat fitur clustering
 CLUSTER_FEATURES_CANDIDATE = [
     # Waktu Granulasi CB1
     "cb1_waktu_lot1_ph1", "cb1_waktu_lot1_ph2",
@@ -62,14 +34,14 @@ CLUSTER_FEATURES_CANDIDATE = [
     # Suhu DIOSNA CB1
     "cb1_suhu_diosna_lot1_1", "cb1_suhu_diosna_lot1_2",
     "cb1_suhu_diosna_lot2_1", "cb1_suhu_diosna_lot2_2",
-    # Suhu Decoct CB2 — semua lot
+    # Suhu Decoct CB2
     "cb2_suhu_lot1_1", "cb2_suhu_lot1_2",
     "cb2_suhu_lot2_1", "cb2_suhu_lot2_2",
     "cb2_suhu_lot3_1", "cb2_suhu_lot3_2",
     "cb2_suhu_lot4_1", "cb2_suhu_lot4_2",
     "cb2_suhu_rata",
     "cb2_suhu_std",
-    # Suhu DIOSNA CB2 — semua lot
+    # Suhu DIOSNA CB2
     "cb2_suhu_diosna_lot1_1", "cb2_suhu_diosna_lot1_2",
     "cb2_suhu_diosna_lot2_1", "cb2_suhu_diosna_lot2_2",
     "cb2_suhu_diosna_lot3_1", "cb2_suhu_diosna_lot3_2",
@@ -95,7 +67,7 @@ CLUSTER_FEATURES_CANDIDATE = [
     "cb2_chopper1", "cb2_chopper2", "cb2_chopper3", "cb2_chopper4",
 ]
 
-# Fitur untuk profiling cluster — persis dari notebook section 8
+# Fitur untuk profiling cluster
 PROFILE_FEATURES = {
     "Suhu CB1 Rata":   "cb1_suhu_rata",
     "Suhu CB1 Std":    "cb1_suhu_std",
@@ -116,7 +88,7 @@ PROFILE_FEATURES = {
     "Granul CB2 (kg)": "cb2_jml_granul_kg",
 }
 
-# Fitur radar chart — 8 dimensi kunci (section 11)
+# Fitur radar chart
 RADAR_FEATURES = {
     "Suhu CB1":  "cb1_suhu_rata",
     "Suhu CB2":  "cb2_suhu_rata",
@@ -131,17 +103,14 @@ RADAR_FEATURES = {
 K_RANGE = range(2, 9)
 
 
-# ══════════════════════════════════════════════════════
 # PUBLIC API
-# ══════════════════════════════════════════════════════
-
 def run_clustering(
     prediction_df: pd.DataFrame,
     save_path: str = None,
     models_dir: str = "models",
 ) -> tuple:
     """
-    Jalankan seluruh pipeline clustering dari 04_clustering.ipynb.
+    Jalankan seluruh pipeline clustering
 
     Parameters
     ----------
@@ -158,10 +127,10 @@ def run_clustering(
 
     df = prediction_df.copy()
 
-    # ── 1. Filter fitur yang tersedia ──────────────────────────────
+    # 1. Filter fitur yang tersedia
     cluster_features = [c for c in CLUSTER_FEATURES_CANDIDATE if c in df.columns]
 
-    # ── 2. Persiapan matrix clustering ────────────────────────────
+    # 2. Persiapan matrix clustering
     df_clust = df[cluster_features + [TARGET]].copy()
     for col in cluster_features:
         if df_clust[col].isna().any():
@@ -170,7 +139,7 @@ def run_clustering(
     X_raw = df_clust[cluster_features].copy()
     y     = df_clust[TARGET].astype(int)
 
-    # ── CEK MODEL TERSIMPAN ────────────────────────────────────────
+    # CEK MODEL TERSIMPAN
     _model_files = {
         "kmeans":   os.path.join(models_dir, "kmeans_model.pkl"),
         "scaler":   os.path.join(models_dir, "scaler_clustering.pkl"),
@@ -182,7 +151,7 @@ def run_clustering(
     _all_cluster_models_exist = all(os.path.exists(p) for p in _model_files.values())
 
     if _all_cluster_models_exist:
-        # ── MODE INFERENCE: load model clustering yang sudah ada ────
+        # MODE INFERENCE: load model clustering yang sudah ada
         print("[clustering] Model ditemukan → load dari disk, skip training.")
         kmeans       = joblib.load(_model_files["kmeans"])
         scaler_clust = joblib.load(_model_files["scaler"])
@@ -195,14 +164,14 @@ def run_clustering(
 
         OPTIMAL_K = cluster_meta_loaded["optimal_k"]
 
-        # Scaling + predict pakai model lama
+        # Scaling + predict pakai model tersimpan
         X_scaled       = scaler_clust.transform(X_raw)
         cluster_labels = kmeans.predict(X_scaled)
 
         sil_final = silhouette_score(X_scaled, cluster_labels)
         db_final  = davies_bouldin_score(X_scaled, cluster_labels)
 
-        # Buat eval_df dari metadata (tidak perlu loop k lagi)
+        # Buat eval_df dari metadata
         eval_df = pd.DataFrame({
             "k":              list(range(2, 2 + len([OPTIMAL_K]))),
             "Inertia":        [kmeans.inertia_],
@@ -213,14 +182,14 @@ def run_clustering(
         best_k_db  = OPTIMAL_K
 
     else:
-        # ── MODE TRAINING: model belum ada, latih dari awal ─────────
+        # MODE TRAINING: jika model belum ada, maka latih dari awal
         print("[clustering] Model belum ada → training dari awal dan simpan ke disk.")
 
-        # ── 3. Scaling ─────────────────────────────────────────────
+        # 3. Scaling
         scaler_clust = StandardScaler()
         X_scaled     = scaler_clust.fit_transform(X_raw)
 
-        # ── 4. Elbow + Silhouette + Davies-Bouldin ──────────────────
+        # 4. Elbow + Silhouette + Davies-Bouldin
         inertias, silhouettes, db_scores = [], [], []
 
         for k in K_RANGE:
@@ -240,10 +209,10 @@ def run_clustering(
         best_k_sil = int(eval_df.loc[eval_df["Silhouette"].idxmax(), "k"])
         best_k_db  = int(eval_df.loc[eval_df["Davies-Bouldin"].idxmin(), "k"])
 
-        # ── 5. Pilih OPTIMAL_K ──────────────────────────────────────
+        # 5. Pilih OPTIMAL_K
         OPTIMAL_K = best_k_sil
 
-        # ── 6. K-Means Final ────────────────────────────────────────
+        # 6. K-Means Final
         kmeans = KMeans(
             n_clusters=OPTIMAL_K,
             random_state=42,
@@ -268,7 +237,7 @@ def run_clustering(
     ).round(3)
     cluster_dist["DefectRate_pct"] = (cluster_dist["DefectRate"] * 100).round(1)
 
-    # ── 7. PCA 2D & 3D ────────────────────────────────────────────
+    # 7. PCA 2D & 3D
     if not _all_cluster_models_exist:
         pca2   = PCA(n_components=2, random_state=42)
         X_pca2 = pca2.fit_transform(X_scaled)
@@ -283,12 +252,12 @@ def run_clustering(
         X_pca3 = pca3.transform(X_scaled)
         var3   = pca3.explained_variance_ratio_
 
-    # Tambahkan PCA coords ke df untuk dashboard
+    # PCA coords ke df
     df["pca_x"] = X_pca2[:, 0]
     df["pca_y"] = X_pca2[:, 1]
     df["pca_z"] = X_pca3[:, 2]
 
-    # ── 8. Profil Cluster ─────────────────────────────────────────
+    # 8. Profil Cluster
     available_profile = {k: v for k, v in PROFILE_FEATURES.items() if v in df.columns}
 
     profile_rows = {}
@@ -304,10 +273,10 @@ def run_clustering(
 
     profile_df = pd.DataFrame(profile_rows).T
 
-    # ── 9. Silhouette per sample (untuk dashboard silhouette plot) ─
+    # 9. Silhouette per sample
     sil_samples = silhouette_samples(X_scaled, cluster_labels)
 
-    # ── 10. Feature Importance Cluster (RF → Gini) ─────────────────
+    # 10. Feature Importance Cluster
     if not _all_cluster_models_exist:
         rf_clust = RandomForestClassifier(
             n_estimators=300,
@@ -324,7 +293,7 @@ def run_clustering(
     cluster_importance_df = imp_series.reset_index()
     cluster_importance_df.columns = ["feature", "importance"]
 
-    # ── 11. Radar chart data (normalisasi 0-1) ─────────────────────
+    # 11. Radar chart data (normalisasi 0-1)
     available_radar = {k: v for k, v in RADAR_FEATURES.items() if v in df.columns}
     radar_df = pd.DataFrame({
         k: df.groupby("Cluster")[v].mean()
@@ -332,7 +301,7 @@ def run_clustering(
     })
     radar_norm = (radar_df - radar_df.min()) / (radar_df.max() - radar_df.min() + 1e-9)
 
-    # ── 12. Interpretasi risiko per cluster ───────────────────────
+    # 12. Interpretasi risiko per cluster
     defect_rates = [
         float(profile_df.loc[f"Cluster {i}", "Defect (%)"])
         for i in range(OPTIMAL_K)
@@ -351,11 +320,11 @@ def run_clustering(
     max_risk_cluster = int(pd.Series(defect_rates).idxmax())
     min_risk_cluster = int(pd.Series(defect_rates).idxmin())
 
-    # ── 13. Simpan dataset_clustered.csv ──────────────────────────
+    # 13. Simpan dataset_clustered.csv
     if save_path:
         df.to_csv(save_path, index=False)
 
-    # ── 14. Simpan model & artefak — hanya jika baru di-train ───────
+    # 14. Simpan model & artefak (hanya jika baru di-train)
     if not _all_cluster_models_exist:
         joblib.dump(kmeans,       os.path.join(models_dir, "kmeans_model.pkl"))
         joblib.dump(scaler_clust, os.path.join(models_dir, "scaler_clustering.pkl"))
@@ -384,7 +353,7 @@ def run_clustering(
     with open(os.path.join(models_dir, "cluster_features.txt"), "w") as f:
         f.write("\n".join(cluster_features))
 
-    # ── 15. Kumpulkan semua hasil ──────────────────────────────────
+    # 15. Kumpulkan semua hasil
     cluster_results = {
         # Evaluasi K selection
         "eval_df":         eval_df,
@@ -431,9 +400,7 @@ def run_clustering(
     return df, cluster_results
 
 
-# ══════════════════════════════════════════════════════
 # QUICK TEST
-# ══════════════════════════════════════════════════════
 if __name__ == "__main__":
     import sys
     sys.path.insert(0, os.path.dirname(__file__))

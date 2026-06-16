@@ -4,9 +4,8 @@ import { Spinner, EmptyState, ErrorBox } from '../components/UI'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts'
 import { AlertTriangle, ChevronDown, ChevronUp, RefreshCw, BookOpen } from 'lucide-react'
 
-// ─────────────────────────────────────────────
+
 // DATA GLOSSARY — istilah teknis granulasi
-// ─────────────────────────────────────────────
 const GLOSSARY_SECTIONS = [
   {
     title: 'Tahapan Proses (CB1, CK1, CB2, CK2)',
@@ -196,9 +195,8 @@ function GlossaryPanel() {
   )
 }
 
-// ─────────────────────────────────────────────
-// Komponen BatchDefectCard (tidak berubah)
-// ─────────────────────────────────────────────
+
+// Komponen BatchDefectCard
 function BatchDefectCard({ batch }) {
   const [open, setOpen] = useState(false)
 
@@ -270,9 +268,8 @@ function BatchDefectCard({ batch }) {
   )
 }
 
-// ─────────────────────────────────────────────
+
 // Main export
-// ─────────────────────────────────────────────
 export default function AnalisisDefect({ hasData }) {
   const [analysis,      setAnalysis]      = useState(null)
   const [batches,       setBatches]       = useState([])
@@ -411,7 +408,7 @@ export default function AnalisisDefect({ hasData }) {
         )}
       </div>
 
-      {/* ── Panduan Istilah Teknis (Glossary) ── */}
+      {/* Panduan Istilah Teknis (Glossary) */}
       <GlossaryPanel />
     </div>
   )

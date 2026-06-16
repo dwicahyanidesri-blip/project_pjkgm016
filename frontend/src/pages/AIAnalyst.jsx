@@ -7,9 +7,8 @@ import {
   Calendar, ListChecks, ChevronRight, RefreshCw, FileText,
 } from 'lucide-react'
 
-// ─────────────────────────────────────────────────────────────
+
 // KARTU ANALISIS — 6 jenis laporan yang bisa di-generate
-// ─────────────────────────────────────────────────────────────
 const ANALYSIS_CARDS = [
   {
     id:    'summary',
@@ -64,9 +63,8 @@ const COLOR = {
   green:  { bg: 'bg-green-50',  icon: 'bg-green-100 text-green-600', ring: 'ring-green-300',   badge: 'bg-green-100 text-green-700' },
 }
 
-// ─────────────────────────────────────────────────────────────
+
 // KOMPONEN: Kartu hasil laporan
-// ─────────────────────────────────────────────────────────────
 function ResultPanel({ result, card, onClose, onRegenerate, loading }) {
   const c = COLOR[card.color]
   const Icon = card.icon
@@ -135,9 +133,8 @@ function ResultPanel({ result, card, onClose, onRegenerate, loading }) {
   )
 }
 
-// ─────────────────────────────────────────────────────────────
+
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
 export default function AIAnalyst({ hasData }) {
   const [kpi,       setKpi]       = useState(null)
   const [results,   setResults]   = useState({})   // { analysis_type: string }

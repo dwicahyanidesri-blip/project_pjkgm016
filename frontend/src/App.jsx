@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from 'react'
 import Navbar         from './components/Navbar'
 import Footer         from './components/Footer'
@@ -9,12 +8,12 @@ import Monitoring     from './pages/Monitoring'
 import AnalisisDefect from './pages/AnalisisDefect'
 import AIAnalyst      from './pages/AIAnalyst'   // ← ganti dari AIChatbot
 
-// Halaman landing — tampilan penuh tanpa wrapper dashboard
+// Halaman landing
 const LANDING_PAGES = {
   'beranda': Beranda,
 }
 
-// Halaman dashboard — muncul setelah data berhasil diupload
+// Halaman dashboard
 const PROTECTED = ['monitoring', 'defect-analysis', 'ai-analyst']
 
 const PAGE_NAMES = {
@@ -73,7 +72,7 @@ export default function App() {
   }
 
   const renderPage = () => {
-    // ── Halaman landing (Beranda, Fitur, Tentang) ──
+    // Halaman landing (Beranda, Fitur, Tentang)
     const LandingComponent = LANDING_PAGES[activePage]
     if (LandingComponent) {
       if (activePage === 'beranda') {
@@ -89,12 +88,12 @@ export default function App() {
       return <LandingComponent onNavigate={setActivePage} />
     }
 
-    // ── Halaman prediksi ──
+    // Halaman prediksi
     if (activePage === 'prediksi') {
       return <Prediksi onDataLoaded={handleDataLoaded} onNavigate={setActivePage} />
     }
 
-    // ── Halaman dashboard (butuh data) ──
+    // Halaman dashboard (butuh data)
     if (PROTECTED.includes(activePage) && !hasData) {
       return (
         <div className="pt-16">

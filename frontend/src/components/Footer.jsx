@@ -1,4 +1,3 @@
-// src/components/Footer.jsx
 export default function Footer({ onNavigateSection }) {
   return (
     <footer className="bg-blue-700 text-blue-50 px-8 pt-14 pb-8">

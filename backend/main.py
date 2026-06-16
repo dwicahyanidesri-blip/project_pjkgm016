@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses  import JSONResponse
 from pydantic           import BaseModel
 
-# ── Path pipeline ────────────────────────────────────────────────────
+# Path pipeline
 _BACKEND_DIR = Path(__file__).parent
 _ROOT_DIR    = _BACKEND_DIR.parent
 for _d in [str(_BACKEND_DIR), str(_ROOT_DIR / "pipeline"), str(_ROOT_DIR)]:
@@ -21,7 +21,7 @@ for _d in [str(_BACKEND_DIR), str(_ROOT_DIR / "pipeline"), str(_ROOT_DIR)]:
 
 from pipeline_runner import run_pipeline, get_pipeline_summary   # noqa: E402
 
-# ════════════════════════════════════════════════════════════════════
+
 app = FastAPI(title="AI Pharma API — PJK-GM016", version="1.0.0")
 
 app.add_middleware(
@@ -36,7 +36,7 @@ MODELS_DIR = str(_ROOT_DIR / "models")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-# ── In-memory cache ──────────────────────────────────────────────────
+# In-memory cache
 _cache: dict = {
     "df":              None,
     "model_results":   None,
@@ -65,13 +65,11 @@ def _auto_load_from_csv():
             except Exception as e:
                 print(f"[startup] Could not load {csv_path}: {e}")
 
-# Auto-load data saat backend start — tidak perlu upload ulang setiap restart
+# Auto-load data saat backend start
 _auto_load_from_csv()
 
-# ════════════════════════════════════════════════════════════════════
-# HELPERS
-# ════════════════════════════════════════════════════════════════════
 
+# HELPERS
 def _df_to_records(df: pd.DataFrame) -> list:
     """Konversi DataFrame ke list of dict, handle NaN/Inf."""
     return json.loads(
@@ -90,10 +88,7 @@ def _safe_float(val):
         return None
 
 
-# ════════════════════════════════════════════════════════════════════
 # ENDPOINTS
-# ════════════════════════════════════════════════════════════════════
-
 @app.get("/")
 def root():
     return {"status": "ok", "message": "AI Pharma API running"}
@@ -105,11 +100,12 @@ def health():
             "rows": len(_cache["df"]) if _cache["df"] is not None else 0}
 
 
-# ── 1. Upload & Run Pipeline ─────────────────────────────────────────
+# 1. Upload & Run Pipeline
 @app.post("/upload")
 async def upload_dataset(file: UploadFile = File(...)):
     """
-    Upload file Excel (.xlsx/.xls) → jalankan full pipeline.
+    Upload file (.xlsx/.xls/.csv) → jalankan full pipeline
+    (preprocessing → modelling → clustering) untuk semua format.
     Return ringkasan hasil.
     """
     fname = file.filename.lower()
@@ -119,23 +115,12 @@ async def upload_dataset(file: UploadFile = File(...)):
     raw_bytes = await file.read()
 
     import io
-    if fname.endswith(".csv"):
-        df_loaded = pd.read_csv(io.BytesIO(raw_bytes), low_memory=False)
-        if "is_defect" not in df_loaded.columns:
-            df_loaded["is_defect"] = 0
-        df_loaded["label_display"] = df_loaded["is_defect"].map({0:"Normal",1:"Defect"}).fillna("Normal")
-        if "row_no" not in df_loaded.columns:
-            df_loaded["row_no"] = range(1, len(df_loaded)+1)
-        _cache["df"]           = df_loaded
-        _cache["pipeline_ran"] = False
-        return {"success": True, "rows": len(df_loaded), "pipeline_ran": False}
-
-    # Excel → full pipeline
     result = run_pipeline(
         io.BytesIO(raw_bytes),
         output_dir=OUTPUT_DIR,
         models_dir=MODELS_DIR,
         save_outputs=True,
+        is_csv=fname.endswith(".csv"),
     )
 
     if not result["success"]:
@@ -159,7 +144,7 @@ async def upload_dataset(file: UploadFile = File(...)):
     }
 
 
-# ── 2. Monitoring ──────────────────────────────────────────────────────
+# 2. Monitoring
 @app.get("/overview")
 def get_overview():
     df = _cache["df"]
@@ -183,7 +168,7 @@ def get_overview():
     yld_cols  = [c for c in ["cb1_pct_yield","ck1_pct_yield","cb2_pct_yield"] if c in df.columns]
     avg_yield = round(float(df[yld_cols].replace(0, np.nan).mean().mean()), 2) if yld_cols else None
 
-    # Defect per bulan — urutkan kronologis dengan label bulan+tahun
+    # Defect per bulan
     defect_trend = []
     if "cb1_bulan" in df.columns:
         gb = df.groupby("cb1_bulan")["is_defect"].agg(total="count", defect="sum").reset_index()
@@ -279,7 +264,7 @@ def get_monitoring(
     }
 
 
-# ── 3. Analisis Defect ───────────────────────────────────────────────
+# 3. Analisis Defect
 @app.get("/defect-analysis")
 def get_defect_analysis():
     df = _cache["df"]
@@ -355,9 +340,9 @@ def get_model_results():
     }
 
 
-# ── 4. Prediksi Manual ───────────────────────────────────────────────
+# 4. Prediksi Manual
 class PredictRequest(BaseModel):
-    features: dict   # {"cb1_suhu_rata": 74.5, "cb2_suhu_rata": 73.2, ...}
+    features: dict   
 
 @app.post("/predict")
 def predict_single(req: PredictRequest):
@@ -381,7 +366,7 @@ def predict_single(req: PredictRequest):
     pred  = int(rf.predict(Xs)[0])
     proba = float(rf.predict_proba(Xs)[0][1])
 
-    # ── Rule-based reasoning dari input manual ──
+    # Rule-based reasoning dari input manual
     features = req.features
     reasons  = []
 
@@ -438,7 +423,7 @@ def predict_single(req: PredictRequest):
     }
 
 
-# ── 5. Clustering ────────────────────────────────────────────────────
+# 5. Clustering
 @app.get("/clustering")
 def get_clustering():
     cr = _cache.get("cluster_results")
@@ -480,7 +465,7 @@ def get_clustering():
     }
 
 
-# ── 6. Defect Batches Detail ─────────────────────────────────────────
+# 6. Defect Batches Detail
 @app.get("/defect-batches")
 def get_defect_batches():
     """Kembalikan semua batch defect beserta kolom defect_reasons dan info batch."""
@@ -505,7 +490,7 @@ def get_defect_batches():
     return {"batches": _df_to_records(result_df)}
 
 
-# ── 7. AI Analyst ────────────────────────────────────────────────────
+# 7. AI Analyst
 HF_MODEL   = "meta-llama/Llama-3.3-70B-Instruct"
 HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 HF_API_KEY = os.getenv("HF_API_KEY", "")
