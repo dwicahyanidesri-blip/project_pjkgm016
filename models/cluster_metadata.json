@@ -1,8 +1,8 @@
 {
   "optimal_k": 2,
-  "silhouette_score": 0.28762571205342674,
-  "davies_bouldin": 1.5350885202529894,
-  "inertia": 2519.4037124731803,
+  "silhouette_score": 0.25313415843390985,
+  "davies_bouldin": 1.530217037521511,
+  "inertia": 2540.5781017319996,
   "cluster_features": [
     "cb1_waktu_lot1_ph1",
     "cb1_waktu_lot1_ph2",
@@ -72,13 +72,13 @@
     "cb2_chopper4"
   ],
   "pca2_var_ratio": [
-    0.17010835564631555,
-    0.12571669791868295
+    0.17162226638494357,
+    0.14038607776401202
   ],
   "pca3_var_ratio": [
-    0.17010835564631555,
-    0.12571669791868295,
-    0.07498744214753962
+    0.17162226638494357,
+    0.14038607776401202,
+    0.07389790516225003
   ],
   "cluster_profile": {
     "n": {
@@ -90,12 +90,12 @@
       "Cluster 1": 100.0
     },
     "Suhu CB1 Rata": {
-      "Cluster 0": 73.903,
-      "Cluster 1": 77.973
+      "Cluster 0": 74.019,
+      "Cluster 1": 77.978
     },
     "Suhu CB1 Std": {
-      "Cluster 0": 0.408,
-      "Cluster 1": 2.005
+      "Cluster 0": 0.542,
+      "Cluster 1": 1.997
     },
     "Suhu CB2 Rata": {
       "Cluster 0": 71.648,
@@ -122,39 +122,39 @@
       "Cluster 1": 28.035
     },
     "KA CB1": {
-      "Cluster 0": 4.975,
-      "Cluster 1": 8.746
+      "Cluster 0": 4.962,
+      "Cluster 1": 4.99
     },
     "KA CB2": {
-      "Cluster 0": 3.493,
-      "Cluster 1": 3.368
+      "Cluster 0": 3.359,
+      "Cluster 1": 3.358
     },
     "KA CK1": {
       "Cluster 0": 4.695,
       "Cluster 1": 4.853
     },
     "Yield CB1 (%)": {
-      "Cluster 0": 100.745,
+      "Cluster 0": 100.754,
       "Cluster 1": 100.686
     },
     "Yield CB1 Dev": {
-      "Cluster 0": 0.075,
+      "Cluster 0": 0.05,
       "Cluster 1": 0.667
     },
     "Yield CK1 (%)": {
-      "Cluster 0": 99.335,
-      "Cluster 1": 100.418
+      "Cluster 0": 99.416,
+      "Cluster 1": 100.439
     },
     "Yield CB2 (%)": {
-      "Cluster 0": 101.018,
+      "Cluster 0": 101.037,
       "Cluster 1": 84.344
     },
     "Granul CB1 (kg)": {
-      "Cluster 0": 301.229,
+      "Cluster 0": 301.254,
       "Cluster 1": 301.05
     },
     "Granul CB2 (kg)": {
-      "Cluster 0": 536.962,
+      "Cluster 0": 537.062,
       "Cluster 1": 538.25
     }
   }
